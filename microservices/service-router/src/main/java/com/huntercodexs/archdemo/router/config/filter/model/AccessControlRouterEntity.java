@@ -20,12 +20,6 @@ public class AccessControlRouterEntity {
     private String accessCode;
 
     @Column
-    private String client;
-
-    @Column
-    private String secret;
-
-    @Column
     private String basicAuth;
 
     @Column

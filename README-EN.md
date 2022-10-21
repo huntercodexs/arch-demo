@@ -301,6 +301,33 @@ This allows hiding both the real endpoint of the microservices as well as the po
 
 # How to use
 
+To use this project, either as an environment initiator, for testing, or for presentations of work
+academic or school or for any other purpose in the field of software, follow the instructions below:
+
+- Clone the project on a local machine:
+
+<pre>
+git clone https://github.com/huntercodexs/arch-demo.git
+</pre>
+
+See that a folder called arch-demo was created, in which the example projects, media and documents are contained, as well as
+as the POSTMAN file for testing.
+
+Inside the arch-demo/microservices folder we have the example services: SERVICE-DISCOVERY, SERVICE-ROUTER, SERVICE-RULES,
+SERVICE-AUTHORIZATOR and SERVICE-DEMO. All of them are just to exemplify the environment that can be executed
+immediately after loading the project into an IDEA (example: IntelliJ).
+
+** We will still have to configure the project to run in a secure environment using docker containers
+
+Below we can see the microservices registered in SERVICE-DISCOVERY (Eureka) which are available to be
+accessor via ROUTE.
+
+![img.png](midias/service-discovery-sample.png)
+
+Another important point is the dedicated database for each service, with no links between them, which could
+cause confusion since we're talking about microservices. The figure below shows an image of this scenario:
+
+![img.png](midias/arch-demo-databases.png)
 
 # Updates
 
