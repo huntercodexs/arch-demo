@@ -1,0 +1,416 @@
+{
+	"info": {
+		"_postman_id": "3290f319-e43e-4e92-9dea-a9468163b6c2",
+		"name": "JAVA - ARCH DEMO",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "SERVICE AUTHORIZATOR",
+			"item": [
+				{
+					"name": "Get Token",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "11111111-2222-3333-4444-555555555555",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "arch_demo_client_1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "OAUTH2DEMO_USER",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "1234567890",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:?????/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "",
+							"query": [
+								{
+									"key": "????/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/token",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check Token",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YXJjaF9kZW1vX2NsaWVudF8xOjExMTExMTExLTIyMjItMzMzMy00NDQ0LTU1NTU1NTU1NTU1NQ==",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "token",
+									"value": "b3bb1ab6-f646-4a99-9e73-0b771b4498fb",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:?????/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/check_token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "",
+							"query": [
+								{
+									"key": "????/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/check_token",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SERVICE ROUTER",
+			"item": [
+				{
+					"name": "Get Token",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "11111111-2222-3333-4444-555555555555",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "arch_demo_client_1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "OAUTH2DEMO_USER",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "1234567890",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:33001/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "33001",
+							"path": [
+								"huntercodexs",
+								"arch-demo",
+								"service-authorizator",
+								"api",
+								"rest",
+								"oauth",
+								"v1",
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check Token",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YXJjaF9kZW1vX2NsaWVudF8xOjExMTExMTExLTIyMjItMzMzMy00NDQ0LTU1NTU1NTU1NTU1NQ==",
+								"type": "text"
+							},
+							{
+								"key": "Access-Code",
+								"value": "XYZ-123",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "token",
+									"value": "1835f156-2d79-418c-8615-092cd825b420",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:33001/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/check_token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "33001",
+							"path": [
+								"huntercodexs",
+								"arch-demo",
+								"service-authorizator",
+								"api",
+								"rest",
+								"oauth",
+								"v1",
+								"oauth",
+								"check_token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								},
+								{
+									"key": "tokenType",
+									"value": "bearer",
+									"type": "string"
+								},
+								{
+									"key": "accessToken",
+									"value": "1835f156-2d79-418c-8615-092cd825b420",
+									"type": "string"
+								},
+								{
+									"key": "clientSecret",
+									"value": "11111111-2222-3333-4444-555555555555",
+									"type": "string"
+								},
+								{
+									"key": "clientId",
+									"value": "arch_demo_client_1",
+									"type": "string"
+								},
+								{
+									"key": "accessTokenUrl",
+									"value": "http://localhost:33001/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/token",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "OAUTH2DEMO_USER",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "1234567890",
+									"type": "string"
+								},
+								{
+									"key": "tokenName",
+									"value": "huntercodexs",
+									"type": "string"
+								},
+								{
+									"key": "grant_type",
+									"value": "password_credentials",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Access-Code",
+								"value": "XYZ-123",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:33001/huntercodexs/arch-demo/service-authorizator/api/test",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "33001",
+							"path": [
+								"huntercodexs",
+								"arch-demo",
+								"service-authorizator",
+								"api",
+								"test"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SERVICE DEMO",
+			"item": [
+				{
+					"name": "Address",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "tokenType",
+									"value": "bearer",
+									"type": "string"
+								},
+								{
+									"key": "accessToken",
+									"value": "0e5f66c3-bb63-41be-9604-8354d4563767",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								},
+								{
+									"key": "clientSecret",
+									"value": "11111111-2222-3333-4444-555555555555",
+									"type": "string"
+								},
+								{
+									"key": "clientId",
+									"value": "arch_demo_client_1",
+									"type": "string"
+								},
+								{
+									"key": "accessTokenUrl",
+									"value": "http://localhost:33001/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/token",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "OAUTH2DEMO_USER",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "1234567890",
+									"type": "string"
+								},
+								{
+									"key": "tokenName",
+									"value": "huntercodexs",
+									"type": "string"
+								},
+								{
+									"key": "grant_type",
+									"value": "password_credentials",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Access-Code",
+								"value": "XYZ-123",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rulesCode\": \"XYZ12345\",\n    \"postalCode\": \"12090002\",\n    \"webhook\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:33001/huntercodexs/arch-demo/service-demo/api/address",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "33001",
+							"path": [
+								"huntercodexs",
+								"arch-demo",
+								"service-demo",
+								"api",
+								"address"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SERVICE RULE",
+			"item": []
+		}
+	]
+}
