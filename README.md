@@ -7,7 +7,7 @@ Exemplo para construir um sistema simples ou complexo baseado em arquitetura de 
 
 - Language: Portugues Brazil (pt-br)  |  <a href="README-EN.md">Inglês (en)</a>
 - Version: 1.0
-- Date: 22/01/03
+- Date: 03/01/22
 
 
 # Sumario
