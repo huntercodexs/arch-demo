@@ -329,6 +329,29 @@ cause confusion since we're talking about microservices. The figure below shows 
 
 ![img.png](midias/arch-demo-databases.png)
 
+> SERVICE-DISCOVERY
+
+This service is responsible for managing the other services in relation to state, address (IP), port and other
+resources, data that will be informed to the ROUTER when necessary.
+
+> SERVICE ROUTE
+
+Service responsible for routing all requests made to the ARCH-DEMO environment, this service checks with the service
+DISCOVERY where is the target service to forward the request, this before going through the authorization process.
+
+> SERVICE-AUTHORIZATOR
+
+Service responsible for managing OAuth2 tokens.
+
+> SERVICE-RULES
+
+In this service are the business rules of the environment, every micro service must be integrated with this service to
+that the business rules are validated correctly.
+
+> SERVICE-DEMO
+
+Example service to look up addresses via Correios with any zip code
+
 # Updates
 
 

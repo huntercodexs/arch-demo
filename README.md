@@ -1,6 +1,6 @@
 
 # ARCH DEMO
-Exemplo para construir um sistema simples ou complexo baseado em arquitetura de microsserviços
+Exemplo para construir um sistema simples ou complexo baseado em arquitetura de micro serviços
 
 
 # Projeto
@@ -327,6 +327,28 @@ causar confusão ja que estamos falando de microserviços. Na figura abaixo temo
 
 ![img.png](midias/arch-demo-databases.png)
 
+> SERVICE-DISCOVERY 
+
+Esse serviço é o responsavel pelo gerenciamento dos outros serviços com relação ao estado, endereço (IP), porta e demais 
+recursos, dados esses que serão informados ao ROUTER quando necessário.
+
+> SERVICE-ROUTER
+
+Serviço responsavel por rotear todas as requsições feitas para o ambiente ARCH-DEMO, esse serviço verifica com o serviço 
+DISCOVERY onde esta o serviço alvo para encaminhar a requisição, isso antes de pasar pelo processo de autorização.
+
+> SERVICE-AUTHORIZATOR
+
+Serviço responsavel pelo gerenciamente de tokens OAuth2.
+
+> SERVICE-RULES
+
+Nesse serviço estão as regras de negócio do ambiente, todo micro serviço deve estar intergrado com esse serviço para 
+que as regras de negocio sejam validadas corretamente.
+
+> SERVICE-DEMO
+
+Service de exemplo para consultar endereços via Correios com um CEP qualquer
 
 # Atualizações
 
