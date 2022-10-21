@@ -5,7 +5,7 @@ Exemplo para construir um sistema simples ou complexo baseado em arquitetura de 
 
 # Projeto
 
-- Language: Portugues Brazil (pt-br)  |  Inglês (en)
+- Language: Portugues Brazil (pt-br)  |  <a href="README-EN.md">Inglês (en)</a>
 - Version: 1.0
 - Date: 22/01/03
 
@@ -214,7 +214,7 @@ uma resposta é enviada ao REQUESTER para ser visualizada pelo operador.
 ![img.png](midias/Sequence.png)
 
 
-# Processo de Authorização
+# Processo de Autorização
 
 A seguir é ilustrado um fluxo completa para uma requisição do tipo request-token, onde podemos observaro que ja foi 
 dito anteriormente sobre os dados que devem ser enviados para autorizar, autenticar e gerar um token para um operador 
@@ -302,4 +302,21 @@ Isso permite ocultar tanto o endpoint real dos microserviços como também a por
 
 # Atualizações
 
+
+# TODO
+
+<table>
+<tr>
+<th>#</th>
+<th>Descrição</th>
+</tr>
+<tr>
+<td>1</td>
+<td>
+Criar ambiente completo e-commerce com segurança anti-fraude e bancos de dados diversos, usar PHP para criar o site, 
+Python para processar arquivos, Java (Spring Boot) para APIs, Javascript (Jshunter) para fazer o front-end. Incluir
+também modulos em NodeJS e ReactJS, banco de dados diversos.
+</td>
+</tr>
+</table>
 

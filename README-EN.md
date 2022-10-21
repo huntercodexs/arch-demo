@@ -5,7 +5,7 @@ Sample to build a simple or complex system based on microservices architecture
 
 # Project
 
-- Language: Portugues Brazil (pt-br)  |  Inglês (en)
+- Language: <a href="README.md">Portugues Brazil (pt-br)</a>  |  English (en)
 - Version: 1.0
 - Date: 22/01/03
 
@@ -305,3 +305,19 @@ This allows hiding both the real endpoint of the microservices as well as the po
 # Updates
 
 
+# TODO
+
+<table>
+<tr>
+<th>#</th>
+<th>Descrição</th>
+</tr>
+<tr>
+<td>1</td>
+<td>
+Create a complete e-commerce environment with anti-fraud security and several databases, use PHP to create the website, 
+Python to process files, Java (Spring Boot) for APIs, Javascript (Jshunter) to do the front end. Include 
+also modules in NodeJS and ReactJS, several databases.
+</td>
+</tr>
+</table>
