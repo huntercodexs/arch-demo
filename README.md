@@ -15,6 +15,7 @@ Exemplo para construir um sistema simples ou complexo baseado em arquitetura de 
 - Recursos
 - Dependencias
 - Extras
+- Atualizações
 - Overview
 - Como funciona
 - Mais detalhes
@@ -22,7 +23,7 @@ Exemplo para construir um sistema simples ou complexo baseado em arquitetura de 
 - Processo de Autorização
 - Ambiente Seguro
 - Como usar
-- Atualizações
+- TODO
 
 
 # Recursos
@@ -54,6 +55,9 @@ Exemplo para construir um sistema simples ou complexo baseado em arquitetura de 
 - Docker
 - Docker Compose
 - Nginx
+
+
+# Atualizações
 
 
 # Overview
@@ -350,15 +354,13 @@ que as regras de negocio sejam validadas corretamente.
 
 Service de exemplo para consultar endereços via Correios com um CEP qualquer
 
-# Atualizações
-
 
 # TODO
 
 <table>
 <tr>
 <th>#</th>
-<th>Descrição</th>
+<th>Descrição</th><th>Situação</th>
 </tr>
 <tr>
 <td>1</td>
@@ -367,6 +369,21 @@ Criar ambiente completo e-commerce com segurança anti-fraude e bancos de dados 
 Python para processar arquivos, Java (Spring Boot) para APIs, Javascript (Jshunter) para fazer o front-end. Incluir
 também modulos em NodeJS e ReactJS, banco de dados diversos.
 </td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>2</td>
+<td>
+Inserir segurança no processo de registro do SERVICE-DISCOVERY (Eureka).
+</td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>3</td>
+<td>
+Inserir um ExceptionHanlder para tratamentos de erros nos micro-serviços do ambiente.
+</td>
+<td>TODO</td>
 </tr>
 </table>
 

@@ -15,6 +15,7 @@ Sample to build a simple or complex system based on microservices architecture
 - Resources
 - Dependencies
 - Extras
+- Updates
 - Overview
 - How it works
 - More details
@@ -22,7 +23,7 @@ Sample to build a simple or complex system based on microservices architecture
 - Authorization Process
 - Secure Environment
 - How to use
-- Updates
+- TODO
 
 
 # Resources
@@ -54,6 +55,9 @@ Sample to build a simple or complex system based on microservices architecture
 - Docker
 - Docker Compose
 - Nginx
+
+
+# Updates
 
 
 # Overview
@@ -352,22 +356,35 @@ that the business rules are validated correctly.
 
 Example service to look up addresses via Correios with any zip code
 
-# Updates
-
 
 # TODO
 
 <table>
 <tr>
 <th>#</th>
-<th>Descrição</th>
+<th>Descrição</th><th>Situação</th>
 </tr>
 <tr>
 <td>1</td>
 <td>
-Create a complete e-commerce environment with anti-fraud security and several databases, use PHP to create the website, 
-Python to process files, Java (Spring Boot) for APIs, Javascript (Jshunter) to do the front end. Include 
+Create a complete e-commerce environment with anti-fraud security and several databases, use PHP to create the website,
+Python to process files, Java (Spring Boot) for APIs, Javascript (Jshunter) to do the front end. Include
 also modules in NodeJS and ReactJS, several databases.
 </td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>2</td>
+<td>
+Insert security into the SERVICE-DISCOVERY (Eureka) registration process.
+</td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>3</td>
+<td>
+Insert an ExceptionHanlder for error handling in the environment's microservices.
+</td>
+<td>TODO</td>
 </tr>
 </table>
