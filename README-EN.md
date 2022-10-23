@@ -378,7 +378,7 @@ also modules in NodeJS and ReactJS, several databases.
 <td>
 Insert security into the SERVICE-DISCOVERY (Eureka) registration process.
 </td>
-<td>TODO</td>
+<td>DONE</td>
 </tr>
 <tr>
 <td>3</td>
@@ -386,5 +386,12 @@ Insert security into the SERVICE-DISCOVERY (Eureka) registration process.
 Insert an ExceptionHanlder for error handling in the environment's microservices.
 </td>
 <td>TODO</td>
+</tr>
+<tr>
+<td>4</td>
+<td>
+Check if it is possible to get the SERVICE-DISCOVERY login data from the database.
+</td>
+<td>WORK</td>
 </tr>
 </table>

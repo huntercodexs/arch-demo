@@ -376,7 +376,7 @@ também modulos em NodeJS e ReactJS, banco de dados diversos.
 <td>
 Inserir segurança no processo de registro do SERVICE-DISCOVERY (Eureka).
 </td>
-<td>TODO</td>
+<td>DONE</td>
 </tr>
 <tr>
 <td>3</td>
@@ -384,6 +384,13 @@ Inserir segurança no processo de registro do SERVICE-DISCOVERY (Eureka).
 Inserir um ExceptionHanlder para tratamentos de erros nos micro-serviços do ambiente.
 </td>
 <td>TODO</td>
+</tr>
+<tr>
+<td>4</td>
+<td>
+Verificar se é possivel obter os dados de login no SERVICE-DISCOVERY do banco de dados.
+</td>
+<td>WORK</td>
 </tr>
 </table>
 

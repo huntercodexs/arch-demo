@@ -35,6 +35,7 @@ build/
 ### Others ###
 **/rpm/**
 /trash/
+**/trash/**
 /backup_target/
 
 ##########
