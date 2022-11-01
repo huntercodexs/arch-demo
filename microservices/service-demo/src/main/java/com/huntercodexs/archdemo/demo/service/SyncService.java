@@ -37,7 +37,7 @@ public class SyncService {
 
         ResponseEntity<AddressResponseDto> result = addressClient.addressSearch(postalCode);
 
-        if (!result.getStatusCode().is4xxClientError()) {
+        if (result.getBody().getCep() != null && !result.getStatusCode().is4xxClientError()) {
             saveAddress(result);
             return result.getBody();
         }
