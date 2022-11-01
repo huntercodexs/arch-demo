@@ -29,12 +29,6 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
-		<!--SECURITY-->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-
 		<!--DATABASE-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -46,7 +40,7 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!--OAUTH2-->
+		<!--OAUTH2/SECURITY-->
 		<!--<dependency>
 			<groupId>org.springframework.security.oauth.boot</groupId>
 			<artifactId>spring-security-oauth2-autoconfigure</artifactId>

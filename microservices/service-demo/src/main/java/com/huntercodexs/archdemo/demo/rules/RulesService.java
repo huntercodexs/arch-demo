@@ -1,5 +1,7 @@
 package com.huntercodexs.archdemo.demo.rules;
 
+import com.huntercodexs.archdemo.demo.config.response.errors.ResponseErrors;
+import com.huntercodexs.archdemo.demo.config.response.exception.ResponseException;
 import com.huntercodexs.archdemo.demo.dto.RulesRequestDto;
 import com.huntercodexs.archdemo.demo.dto.RulesResponseDto;
 import lombok.extern.slf4j.Slf4j;
@@ -59,11 +61,13 @@ public class RulesService {
         try {
             response = restTemplate.postForEntity(rulesUrl, httpEntity, RulesResponseDto.class);
         } catch (RuntimeException re) {
-            throw new RuntimeException("[Exception] Invalid Rules: " + re.getMessage());
+            log.error("Invalid Rules: " + re.getMessage());
+            throw new ResponseException(ResponseErrors.SERVICE_ERROR_RULES_NOK);
         }
 
         if (!Objects.requireNonNull(response.getBody()).getStatus()) {
-            throw new RuntimeException("Invalid Rules: " + response.getBody().getMessage());
+            log.error("Invalid Rules: " + response.getBody().getMessage());
+            throw new ResponseException(ResponseErrors.SERVICE_ERROR_RULES_NOK);
         }
     }
 
