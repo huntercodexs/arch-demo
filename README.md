@@ -376,21 +376,70 @@ também modulos em NodeJS e ReactJS, banco de dados diversos.
 <td>
 Inserir segurança no processo de registro do SERVICE-DISCOVERY (Eureka).
 </td>
-<td>DONE</td>
+<td style="color: #00FF00;">DONE</td>
 </tr>
 <tr>
 <td>3</td>
 <td>
 Inserir um ExceptionHanlder para tratamentos de erros nos micro-serviços do ambiente.
 </td>
-<td>WORK</td>
+<td style="color: #FFFF00;">WORK</td>
 </tr>
 <tr>
 <td>4</td>
 <td>
 Verificar se é possivel obter os dados de login no SERVICE-DISCOVERY do banco de dados.
 </td>
-<td>CANCELADO</td>
+<td style="color: #FF0000">CANCELADO</td>
+</tr>
+<tr>
+<td>5</td>
+<td>
+Habilitar Zipkin e Prometheus.
+</td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>6</td>
+<td>
+Habilitar Nginx usando Docker.
+</td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>7</td>
+<td>
+Habilitar Swagger nos micro serviços.
+</td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>8</td>
+<td>
+Habilitar Testes unitarios e de integração.
+</td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>9</td>
+<td>
+Criar serviço de mensageria usando RabbitMQ.
+</td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>10</td>
+<td>
+Habilitar API DOC GUARD (Projeto pessoal), verificar se é possível gerar um JAR para usar como dependencia.
+</td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>11</td>
+<td>
+Habilitar plugin PROGUARD para ofuscamento de códigos.
+</td>
+<td>TODO</td>
 </tr>
 </table>
 

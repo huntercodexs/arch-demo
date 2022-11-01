@@ -362,7 +362,7 @@ Example service to look up addresses via Correios with any zip code
 <table>
 <tr>
 <th>#</th>
-<th>Descrição</th><th>Situação</th>
+<th>Description</th><th>Status</th>
 </tr>
 <tr>
 <td>1</td>
@@ -378,20 +378,69 @@ also modules in NodeJS and ReactJS, several databases.
 <td>
 Insert security into the SERVICE-DISCOVERY (Eureka) registration process.
 </td>
-<td>DONE</td>
+<td style="color: #00FF00;">DONE</td>
 </tr>
 <tr>
 <td>3</td>
 <td>
 Insert an ExceptionHanlder for error handling in the environment's microservices.
 </td>
-<td>WORK</td>
+<td style="color: #FFFF00;">WORK</td>
 </tr>
 <tr>
 <td>4</td>
 <td>
-Check if it is possible to get the SERVICE-DISCOVERY login data from the database.
+Check if it is possible to obtain the SERVICE-DISCOVERY login data from the database.
 </td>
-<td>CANCELED</td>
+<td style="color: #FF0000">CANCELED</td>
+</tr>
+<tr>
+<td>5</td>
+<td>
+Enable Zipkin and Prometheus.
+</td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>6</td>
+<td>
+Enable Nginx using Docker.
+</td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>7</td>
+<td>
+Enable Swagger in microservices.
+</td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>8</td>
+<td>
+Enable Unit and Integration Tests.
+</td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>9</td>
+<td>
+Create messaging service using RabbitMQ.
+</td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>10</td>
+<td>
+Enable DOC GUARD API (Personal project), check if it is possible to generate a JAR to use as a dependency.
+</td>
+<td>TODO</td>
+</tr>
+<tr>
+<td>11</td>
+<td>
+Enable PROGUARD plugin for code obfuscation.
+</td>
+<td>TODO</td>
 </tr>
 </table>
