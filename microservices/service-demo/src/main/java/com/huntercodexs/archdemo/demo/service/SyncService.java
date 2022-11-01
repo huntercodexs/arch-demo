@@ -1,6 +1,8 @@
 package com.huntercodexs.archdemo.demo.service;
 
 import com.huntercodexs.archdemo.demo.client.AddressClient;
+import com.huntercodexs.archdemo.demo.config.response.errors.ResponseErrors;
+import com.huntercodexs.archdemo.demo.config.response.exception.ResponseException;
 import com.huntercodexs.archdemo.demo.database.model.AddressEntity;
 import com.huntercodexs.archdemo.demo.database.repository.AddressRepository;
 import com.huntercodexs.archdemo.demo.dto.AddressResponseDto;
@@ -40,7 +42,7 @@ public class SyncService {
             return result.getBody();
         }
 
-        throw new RuntimeException("Address not found using postal code => " + postalCode);
+        throw new ResponseException(ResponseErrors.SERVICE_ERROR_NOT_FOUND);
     }
 
     private void saveAddress(ResponseEntity<AddressResponseDto> result) {

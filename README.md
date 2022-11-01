@@ -383,14 +383,14 @@ Inserir segurança no processo de registro do SERVICE-DISCOVERY (Eureka).
 <td>
 Inserir um ExceptionHanlder para tratamentos de erros nos micro-serviços do ambiente.
 </td>
-<td>TODO</td>
+<td>WORK</td>
 </tr>
 <tr>
 <td>4</td>
 <td>
 Verificar se é possivel obter os dados de login no SERVICE-DISCOVERY do banco de dados.
 </td>
-<td>WORK</td>
+<td>CANCELADO</td>
 </tr>
 </table>
 

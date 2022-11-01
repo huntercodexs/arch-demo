@@ -385,13 +385,13 @@ Insert security into the SERVICE-DISCOVERY (Eureka) registration process.
 <td>
 Insert an ExceptionHanlder for error handling in the environment's microservices.
 </td>
-<td>TODO</td>
+<td>WORK</td>
 </tr>
 <tr>
 <td>4</td>
 <td>
 Check if it is possible to get the SERVICE-DISCOVERY login data from the database.
 </td>
-<td>WORK</td>
+<td>CANCELED</td>
 </tr>
 </table>
