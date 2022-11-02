@@ -6,6 +6,7 @@ import com.huntercodexs.archdemo.demo.config.response.exception.ResponseExceptio
 import com.huntercodexs.archdemo.demo.database.model.AddressEntity;
 import com.huntercodexs.archdemo.demo.database.repository.AddressRepository;
 import com.huntercodexs.archdemo.demo.dto.AddressResponseDto;
+import com.huntercodexs.archdemo.demo.mapper.AddressResponseMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -13,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-
-import static com.huntercodexs.archdemo.demo.mapper.AddressResponseMapper.mapperFinalResponseDto;
 
 @RefreshScope
 @Service
@@ -32,20 +31,24 @@ public class SyncService {
         AddressEntity address = addressRepository.findByCep(postalCode);
 
         if (address != null && !address.getCep().equals("")) {
-            return mapperFinalResponseDto(address);
+            return AddressResponseMapper.mapperFinalResponseDtoByEntity(address);
         }
 
         ResponseEntity<AddressResponseDto> result = addressClient.addressSearch(postalCode);
 
-        if (result.getBody().getCep() != null && !result.getStatusCode().is4xxClientError()) {
+        if (result == null) {
+            throw new ResponseException(ResponseErrors.SERVICE_ERROR_NOT_FOUND);
+        }
+
+        if (!result.getStatusCode().is4xxClientError()) {
             saveAddress(result);
             return result.getBody();
         }
 
-        throw new ResponseException(ResponseErrors.SERVICE_ERROR_NOT_FOUND);
+        throw new ResponseException(ResponseErrors.SERVICE_ERROR_INTERNAL);
     }
 
-    private void saveAddress(ResponseEntity<AddressResponseDto> result) {
+    public void saveAddress(ResponseEntity<AddressResponseDto> result) {
         AddressEntity addressEntity = new AddressEntity();
         try {
             addressEntity.setCep(Objects.requireNonNull(result.getBody()).getCep().replace("-", ""));

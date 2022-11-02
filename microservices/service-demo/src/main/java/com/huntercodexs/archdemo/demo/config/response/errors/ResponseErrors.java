@@ -17,13 +17,23 @@ public enum ResponseErrors {
 
     SERVICE_ERROR_NOT_FOUND(
             HttpStatus.NOT_FOUND,
-            140,
+            120,
             "Address not found"),
 
     SERVICE_ERROR_RULES_NOK(
             HttpStatus.UNAUTHORIZED,
+            140,
+            "Rules is not OK"),
+
+    SERVICE_ERROR_TEST(
+            HttpStatus.ACCEPTED,
+            160,
+            "This is only a test"),
+
+    SERVICE_ERROR_INTERNAL(
+            HttpStatus.INTERNAL_SERVER_ERROR,
             180,
-            "Rules is not OK");
+            "Internal Server Error");;
 
     public HttpStatus statusCode;
     public int errorCode;

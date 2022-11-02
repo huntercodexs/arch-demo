@@ -383,7 +383,7 @@ Inserir segurança no processo de registro do SERVICE-DISCOVERY (Eureka).
 <td>
 Inserir um ExceptionHanlder para tratamentos de erros nos micro-serviços do ambiente.
 </td>
-<td style="color: #FFFF00;">WORK</td>
+<td style="color: #00FF00;">DONE</td>
 </tr>
 <tr>
 <td>4</td>
@@ -418,7 +418,7 @@ Habilitar Swagger nos micro serviços.
 <td>
 Habilitar Testes unitarios e de integração.
 </td>
-<td>TODO</td>
+<td style="color: #FFFF00">WORK</td>
 </tr>
 <tr>
 <td>9</td>

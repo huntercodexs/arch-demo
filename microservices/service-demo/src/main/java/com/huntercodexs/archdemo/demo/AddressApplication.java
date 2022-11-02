@@ -14,4 +14,25 @@ public class AddressApplication {
 		SpringApplication.run(AddressApplication.class, args);
 	}
 
+	/**
+	 * TESTES
+	 *
+	 * UNITARIOS
+	 * ok - AddressResponseMapper: mapperInitialResponseDto
+	 * ok - AddressResponseMapper: mapperFinalResponseDto
+	 * ok - AddressResponseMapper: mapperFinalResponseDto
+	 * ok - SyncService: runAddressSync
+	 * ok - SyncService: saveAddress
+	 * ok - ResponseExceptionHandler: handler
+	 *
+	 * INTEGRAÇÃO
+	 * - RulesService: isRulesValid
+	 * - AddressService: getAddress SYNC
+	 * - AddressService: getAddress SYNC (DATA NOT FOUND)
+	 * - AddressService: getAddress ASYNC
+	 * - AddressService: getAddress ASYNC (DATA NOT FOUND)
+	 * - AddressClient: addressSearch
+	 *
+	 * */
+
 }

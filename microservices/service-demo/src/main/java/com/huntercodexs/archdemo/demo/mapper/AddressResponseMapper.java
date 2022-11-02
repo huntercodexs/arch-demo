@@ -14,11 +14,11 @@ public class AddressResponseMapper {
         return new AddressResponseDto();
     }
 
-    public static AddressResponseDto mapperFinalResponseDto(AddressResponseDto addressResponseDto) {
+    public static AddressResponseDto mapperFinalResponseDtoByEntity(AddressResponseDto addressResponseDto) {
         return new AddressResponseDto();
     }
 
-    public static AddressResponseDto mapperFinalResponseDto(AddressEntity addressEntity) {
+    public static AddressResponseDto mapperFinalResponseDtoByEntity(AddressEntity addressEntity) {
         AddressResponseDto addressResponseDto = new AddressResponseDto();
         addressResponseDto.setCep(addressEntity.getCep());
         addressResponseDto.setLogradouro(addressEntity.getLogradouro());
