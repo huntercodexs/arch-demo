@@ -1,17 +1,25 @@
 package com.huntercodexs.archdemo.demo.abstractor;
 
 import com.huntercodexs.archdemo.demo.AddressApplication;
+import com.huntercodexs.archdemo.demo.abstractor.dto.Oauth2RequestTokenDto;
+import com.huntercodexs.archdemo.demo.abstractor.dto.Oauth2ResponseTokenDto;
+import com.huntercodexs.archdemo.demo.abstractor.dto.RequestPostDto;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.ResourceUtils;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
@@ -28,24 +36,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public abstract class IntegrationAbstractTest {
 
     protected MockMvc mockMvc;
-
     private static final String propFile = "classpath:integration.test.properties";
     protected final Properties props = loadPropsTest();
-
     protected String integrationUrlBaseTest = props.getProperty("integration.test.base-url");
     protected String integrationUriBaseTest = props.getProperty("integration.test.base-uri");
-
-    protected final String integrationBasicAuthorization = props.getProperty("integration.test.basic-authorization");
-    protected final String integrationInvalidBasicAuthorization = props.getProperty("integration.test.basic-authorization-invalid");
-    protected final String integrationAppNameAuthorization = props.getProperty("integration.test.api-key.app-name");
-    protected final String integrationTokenAuthorization = props.getProperty("integration.test.api-key.token");
-    protected final String integrationSecretAuthorization = props.getProperty("integration.test.api-key.secret");
-    protected final String integrationValueAuthorization = props.getProperty("integration.test.api-key.value");
-    protected final String integrationGenericAuthorization = props.getProperty("integration.test.api-key.generic");
-    protected final String integrationAdditionalAuthorization = props.getProperty("integration.test.api-key.additional");
+    protected final String integrationAuthorizationBasic = props.getProperty("integration.test.header.authorization-basic");
+    protected final String integrationAuthorizationBasicInvalid = props.getProperty("integration.test.header.authorization-basic-invalid");
+    protected final String integrationAuthorizationBearer = props.getProperty("integration.test.header.authorization-bearer");
+    protected final String integrationAuthorizationBearerInvalid = props.getProperty("integration.test.header.authorization-bearer-invalid");
+    protected final String integrationAppNameAuthorization = props.getProperty("integration.test.header.api-key.app-name");
+    protected final String integrationTokenAuthorization = props.getProperty("integration.test.header.api-key.token");
+    protected final String integrationSecretAuthorization = props.getProperty("integration.test.header.api-key.secret");
+    protected final String integrationValueAuthorization = props.getProperty("integration.test.header.api-key.value");
+    protected final String integrationGenericAuthorization = props.getProperty("integration.test.header.api-key.generic");
+    protected final String integrationAdditionalHeaderName = props.getProperty("integration.test.header.additional-name");
+    protected final String integrationAdditionalHeaderValue = props.getProperty("integration.test.header.additional-value");
 
     @Autowired
     WebApplicationContext webApplicationContext;
+
+    protected static final RestTemplate restTemplate = new RestTemplate();
 
     protected void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
@@ -72,7 +82,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(user_data)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 ).andReturn();
     }
 
@@ -80,7 +90,7 @@ public abstract class IntegrationAbstractTest {
         mockMvc.perform(
                         MockMvcRequestBuilders
                                 .delete(integrationUrlBaseTest+integrationUriBaseTest+"/"+id)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 ).andReturn();
     }
 
@@ -90,6 +100,60 @@ public abstract class IntegrationAbstractTest {
         } else {
             Assert.assertEquals(1, 0);
         }
+    }
+
+    protected static ResponseEntity<Oauth2ResponseTokenDto> getToken(Oauth2RequestTokenDto oauth2RequestTokenDto) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        httpHeaders.set("Authorization", "Basic " + oauth2RequestTokenDto.getAuth().replaceFirst("Basic ", ""));
+        String credentials = "?username="+ oauth2RequestTokenDto.getUser()+"&password="+ oauth2RequestTokenDto.getPass()+"&grant_type="+ oauth2RequestTokenDto.getGrant();
+        HttpEntity<String> httpEntity = new HttpEntity<>(credentials, httpHeaders);
+        return restTemplate.postForEntity(oauth2RequestTokenDto.getUrl() + credentials, httpEntity, Oauth2ResponseTokenDto.class);
+    }
+
+    private HttpHeaders getCurrentTestHeaders(RequestPostDto requestPostDto) {
+
+        HttpHeaders headers = new HttpHeaders();
+
+        switch (requestPostDto.getAuthType()) {
+            case "Basic":
+                if (requestPostDto.getAuthKey().equals("") || requestPostDto.getAuthKey() == null) {
+                    headers.set("Authorization", "Basic " + integrationAuthorizationBasic.replaceFirst("Basic ", ""));
+                } else {
+                    headers.set("Authorization", "Basic " + requestPostDto.getAuthKey().replaceFirst("Basic ", ""));
+                }
+                break;
+            case "Bearer":
+                if (requestPostDto.getAuthKey().equals("") || requestPostDto.getAuthKey() == null) {
+                    headers.set("Authorization", "Bearer " + integrationAuthorizationBearer.replaceFirst("Bearer ", ""));
+                } else {
+                    headers.set("Authorization", "Bearer " + requestPostDto.getAuthKey().replaceFirst("Bearer ", ""));
+                }
+                break;
+            default:
+                headers.set("Authorization", null);
+        }
+
+        if (!integrationTokenAuthorization.equals("")) {
+            headers.set("Api-Key-Token", integrationTokenAuthorization);
+        }
+        if (!integrationAppNameAuthorization.equals("")) {
+            headers.set("Api-Key-App-Name", integrationAppNameAuthorization);
+        }
+        if (!integrationSecretAuthorization.equals("")) {
+            headers.set("Api-Key-Secret", integrationSecretAuthorization);
+        }
+        if (!integrationValueAuthorization.equals("")) {
+            headers.set("Api-Key-Value", integrationValueAuthorization);
+        }
+        if (!integrationGenericAuthorization.equals("")) {
+            headers.set("Api-Key-Generic", integrationGenericAuthorization);
+        }
+        if (!integrationAdditionalHeaderName.equals("") && !integrationAdditionalHeaderValue.equals("")) {
+            headers.set(integrationAdditionalHeaderName, integrationAdditionalHeaderValue);
+        }
+
+        return headers;
     }
 
     /**
@@ -105,7 +169,7 @@ public abstract class IntegrationAbstractTest {
                         .get(integrationUriBaseTest)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", integrationInvalidBasicAuthorization)
+                        .header("Authorization", integrationAuthorizationBasicInvalid)
                 )
                 .andExpect(status().isUnauthorized())
                 .andReturn();
@@ -121,7 +185,7 @@ public abstract class IntegrationAbstractTest {
                                 .get(integrationUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isMethodNotAllowed())
                 .andReturn();
@@ -137,7 +201,7 @@ public abstract class IntegrationAbstractTest {
                                 .get(integrationUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -153,7 +217,7 @@ public abstract class IntegrationAbstractTest {
                                 .get(integrationUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -169,7 +233,7 @@ public abstract class IntegrationAbstractTest {
                                 .get(integrationUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -185,7 +249,7 @@ public abstract class IntegrationAbstractTest {
                                 .get(integrationUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isAccepted())
                 .andReturn();
@@ -201,7 +265,7 @@ public abstract class IntegrationAbstractTest {
                                 .get(integrationUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -217,7 +281,7 @@ public abstract class IntegrationAbstractTest {
                                 .get(integrationUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -233,7 +297,7 @@ public abstract class IntegrationAbstractTest {
                                 .get(integrationUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isInternalServerError())
                 .andReturn();
@@ -241,19 +305,21 @@ public abstract class IntegrationAbstractTest {
 
     /**
      * Using Http POST
+     *
+     * @return
      */
-    protected void unauthorizedByHttpPost(String uri, String id, String dataRequest) throws Exception {
+    protected MvcResult unauthorizedByHttpPost(RequestPostDto requestPostDto) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!requestPostDto.getUri().equals("")) integrationUriBaseTest = requestPostDto.getUri();
+        if (!requestPostDto.getId().equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+requestPostDto.getId();
 
-        mockMvc.perform(
+        return mockMvc.perform(
                         MockMvcRequestBuilders
-                                .post(integrationUriBaseTest)
-                                .content(dataRequest)
+                                .post(integrationUrlBaseTest + integrationUriBaseTest)
+                                .content(requestPostDto.getDataRequest())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationInvalidBasicAuthorization)
+                                .headers(getCurrentTestHeaders(requestPostDto))
                 )
                 .andExpect(status().isUnauthorized())
                 .andReturn();
@@ -270,7 +336,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isMethodNotAllowed())
                 .andReturn();
@@ -287,7 +353,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -304,7 +370,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -321,7 +387,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -338,7 +404,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isAccepted())
                 .andReturn();
@@ -355,7 +421,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -372,7 +438,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isFound())
                 .andReturn();
@@ -389,7 +455,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -406,7 +472,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isInternalServerError())
                 .andReturn();
@@ -426,7 +492,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationInvalidBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasicInvalid)
                 )
                 .andExpect(status().isUnauthorized())
                 .andReturn();
@@ -443,7 +509,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isMethodNotAllowed())
                 .andReturn();
@@ -460,7 +526,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -477,7 +543,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -494,7 +560,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -511,7 +577,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isAccepted())
                 .andReturn();
@@ -528,7 +594,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -545,7 +611,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -562,7 +628,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isInternalServerError())
                 .andReturn();
@@ -579,7 +645,7 @@ public abstract class IntegrationAbstractTest {
         mockMvc.perform(
                 MockMvcRequestBuilders
                         .delete(integrationUriBaseTest)
-                        .header("Authorization", integrationInvalidBasicAuthorization)
+                        .header("Authorization", integrationAuthorizationBasicInvalid)
                 )
                 .andExpect(status().isUnauthorized())
                 .andReturn();
@@ -593,7 +659,7 @@ public abstract class IntegrationAbstractTest {
         mockMvc.perform(
                         MockMvcRequestBuilders
                                 .delete(integrationUriBaseTest)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isMethodNotAllowed())
                 .andReturn();
@@ -607,7 +673,7 @@ public abstract class IntegrationAbstractTest {
         mockMvc.perform(
                         MockMvcRequestBuilders
                                 .delete(integrationUriBaseTest)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -621,7 +687,7 @@ public abstract class IntegrationAbstractTest {
         mockMvc.perform(
                         MockMvcRequestBuilders
                                 .delete(integrationUriBaseTest)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -635,7 +701,7 @@ public abstract class IntegrationAbstractTest {
         mockMvc.perform(
                         MockMvcRequestBuilders
                                 .delete(integrationUriBaseTest)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -649,7 +715,7 @@ public abstract class IntegrationAbstractTest {
         mockMvc.perform(
                         MockMvcRequestBuilders
                                 .delete(integrationUriBaseTest)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isAccepted())
                 .andReturn();
@@ -663,7 +729,7 @@ public abstract class IntegrationAbstractTest {
         mockMvc.perform(
                         MockMvcRequestBuilders
                                 .delete(integrationUriBaseTest)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -677,7 +743,7 @@ public abstract class IntegrationAbstractTest {
         mockMvc.perform(
                         MockMvcRequestBuilders
                                 .delete(integrationUriBaseTest)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isInternalServerError())
                 .andReturn();
@@ -697,7 +763,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationInvalidBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasicInvalid)
                 )
                 .andExpect(status().isUnauthorized())
                 .andReturn();
@@ -714,7 +780,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isMethodNotAllowed())
                 .andReturn();
@@ -731,7 +797,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -748,7 +814,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -765,7 +831,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isAccepted())
                 .andReturn();
@@ -782,7 +848,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -799,7 +865,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -816,7 +882,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isInternalServerError())
                 .andReturn();
@@ -836,7 +902,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationInvalidBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasicInvalid)
                 )
                 .andExpect(status().isUnauthorized())
                 .andReturn();
@@ -853,7 +919,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isMethodNotAllowed())
                 .andReturn();
@@ -870,7 +936,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -887,7 +953,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -904,7 +970,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -921,7 +987,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -938,7 +1004,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isInternalServerError())
                 .andReturn();
@@ -958,7 +1024,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationInvalidBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasicInvalid)
                 )
                 .andExpect(status().isUnauthorized())
                 .andReturn();
@@ -975,7 +1041,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isMethodNotAllowed())
                 .andReturn();
@@ -992,7 +1058,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -1009,7 +1075,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -1026,7 +1092,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -1043,7 +1109,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -1060,7 +1126,7 @@ public abstract class IntegrationAbstractTest {
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationBasicAuthorization)
+                                .header("Authorization", integrationAuthorizationBasic)
                 )
                 .andExpect(status().isInternalServerError())
                 .andReturn();

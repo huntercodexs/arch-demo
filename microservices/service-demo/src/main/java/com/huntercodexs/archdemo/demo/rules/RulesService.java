@@ -61,14 +61,15 @@ public class RulesService {
         try {
             response = restTemplate.postForEntity(rulesUrl, httpEntity, RulesResponseDto.class);
         } catch (RuntimeException re) {
-            log.error("Invalid Rules: " + re.getMessage());
-            throw new ResponseException(ResponseErrors.SERVICE_ERROR_RULES_NOK);
+            log.error("Rules Server is Down: " + re.getMessage());
+            throw new ResponseException(ResponseErrors.SERVICE_ERROR_RULES_DOWN);
         }
 
         if (!Objects.requireNonNull(response.getBody()).getStatus()) {
             log.error("Invalid Rules: " + response.getBody().getMessage());
             throw new ResponseException(ResponseErrors.SERVICE_ERROR_RULES_NOK);
         }
+
     }
 
 }

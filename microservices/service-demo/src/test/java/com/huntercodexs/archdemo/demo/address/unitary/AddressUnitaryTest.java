@@ -1,12 +1,13 @@
 package com.huntercodexs.archdemo.demo.address.unitary;
 
 import com.huntercodexs.archdemo.demo.abstractor.UnitAbstractTest;
-import com.huntercodexs.archdemo.demo.address.datasource.AddressSourcesTest;
+import com.huntercodexs.archdemo.demo.address.datasource.AddressDataSourceTest;
 import com.huntercodexs.archdemo.demo.config.response.errors.ResponseErrors;
 import com.huntercodexs.archdemo.demo.config.response.exception.ResponseException;
 import com.huntercodexs.archdemo.demo.database.model.AddressEntity;
 import com.huntercodexs.archdemo.demo.database.repository.AddressRepository;
 import com.huntercodexs.archdemo.demo.dto.AddressResponseDto;
+import com.huntercodexs.archdemo.demo.rules.RulesService;
 import com.huntercodexs.archdemo.demo.service.AddressService;
 import com.huntercodexs.archdemo.demo.service.SyncService;
 import org.junit.Test;
@@ -16,8 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.huntercodexs.archdemo.demo.address.datasource.AddressSourcesTest.dataSourceAddressEntityFill;
-import static com.huntercodexs.archdemo.demo.address.datasource.AddressSourcesTest.dataSourceAddressEntityResponse;
+import static com.huntercodexs.archdemo.demo.address.datasource.AddressDataSourceTest.dataSourceAddressEntityFill;
+import static com.huntercodexs.archdemo.demo.address.datasource.AddressDataSourceTest.dataSourceAddressEntityResponse;
 import static com.huntercodexs.archdemo.demo.mapper.AddressResponseMapper.mapperFinalResponseDtoByEntity;
 import static com.huntercodexs.archdemo.demo.mapper.AddressResponseMapper.mapperInitialResponseDto;
 import static com.huntercodexs.archdemo.demo.utils.TestsHelpers.md5;
@@ -32,6 +33,9 @@ public class AddressUnitaryTest extends UnitAbstractTest {
     SyncService syncService;
 
     @Autowired
+    RulesService rulesService;
+
+    @Autowired
     AddressRepository addressRepository;
 
     @Test
@@ -42,14 +46,14 @@ public class AddressUnitaryTest extends UnitAbstractTest {
 
     @Test
     public void whenMapperFinalResponseDtoTest_FromAddressResponseMapper_AssertExact() {
-        AddressResponseDto addressResponseDto = AddressSourcesTest.dataSourceMapperFinalResponseDto();
+        AddressResponseDto addressResponseDto = AddressDataSourceTest.dataSourceMapperFinalResponseDto();
         AddressResponseDto result = mapperFinalResponseDtoByEntity(addressResponseDto);
         assertionExact(md5(result.toString()), md5(new AddressResponseDto().toString()));
     }
 
     @Test
     public void whenMapperFinalResponseDtoByEntityTest_FromAddressResponseMapper_AssertBoolean() {
-        AddressEntity addressEntity = AddressSourcesTest.dataSourceAddressEntityEmpty();
+        AddressEntity addressEntity = AddressDataSourceTest.dataSourceAddressEntityEmpty();
         mapperFinalResponseDtoByEntity(addressEntity);
         assertionBool(true, true);
     }
@@ -123,6 +127,15 @@ public class AddressUnitaryTest extends UnitAbstractTest {
             throw new ResponseException(ResponseErrors.SERVICE_ERROR_TEST);
         } catch (Exception ex) {
             assertionExact(ex.getMessage(), ResponseErrors.SERVICE_ERROR_TEST.getMessage());
+        }
+    }
+
+    @Test
+    public void whenRunRulesServerButItIsDownTest_AssertIntegration() throws Exception {
+        try {
+            rulesService.isRulesValid("XXX-123", "SERVICE-NAME-TEST");
+        } catch (Exception ex) {
+            assertionText("Rules Server is DOWN", ex.getMessage());
         }
     }
 

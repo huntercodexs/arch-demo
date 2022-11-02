@@ -1,12 +1,18 @@
 package com.huntercodexs.archdemo.demo.address.integration;
 
 import com.huntercodexs.archdemo.demo.abstractor.IntegrationAbstractTest;
+import com.huntercodexs.archdemo.demo.abstractor.dto.Oauth2RequestTokenDto;
+import com.huntercodexs.archdemo.demo.abstractor.dto.Oauth2ResponseTokenDto;
+import com.huntercodexs.archdemo.demo.abstractor.dto.RequestPostDto;
 import net.minidev.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MvcResult;
 
-import static com.huntercodexs.archdemo.demo.address.datasource.AddressSourcesTest.*;
+import static com.huntercodexs.archdemo.demo.address.datasource.AddressDataSourceTest.dataSourceAddressRequestWrongRulesCode;
+import static com.huntercodexs.archdemo.demo.address.datasource.AddressDataSourceTest.dataSourceOAuth2Token;
 
 @SpringBootTest
 public class AddressIntegrationTest extends IntegrationAbstractTest {
@@ -17,105 +23,22 @@ public class AddressIntegrationTest extends IntegrationAbstractTest {
         super.setUp();
     }
 
-    /**
-     * Account Opening
-     */
+    @Test
+    public void whenRequestToAddressSearchUsingInvalidRulesCodeTest_RetrieveUnauthorized_401() throws Exception {
+        Oauth2RequestTokenDto oauth2RequestTokenDto = dataSourceOAuth2Token();
+        ResponseEntity<Oauth2ResponseTokenDto> response = getToken(oauth2RequestTokenDto);
+        JSONObject dataRequest = dataSourceAddressRequestWrongRulesCode();
 
-//    @Test
-//    public void whenRequestToEkataAccountOpeningUsingWrongTokenSync_RetrieveConflict_409() throws Exception {
-//        /*NOTE: Before Change the application.properties in ekata.basic-authorization with a wrong token*/
-//        JSONObject ekataRequestJsonTest = ekataRequestJsonTest();
-//
-//        try {
-//            conflictByHttpPost(endpointUri, "", ekataRequestJsonTest.toString());
-//        } catch (Exception e) {
-//            assertIntegration("409 Null", e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    public void whenRequestToEkataAccountOpeningAsync_RetrieveAccepted_202() throws Exception {
-//        JSONObject ekataRequestJsonTest = ekataRequestJsonTest();
-//        ekataRequestJsonTest.put("webhookUrl", webhookUrl);
-//
-//        try {
-//            acceptedByHttpPost(endpointUri, "", ekataRequestJsonTest.toString());
-//        } catch (Exception e) {
-//            assertIntegration("202", e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    public void whenRequestToEkataAccountOpeningWithoutBody_RetrieveBadRequest_400() throws Exception {
-//        BdvRequestToEkataDTO bdvRequestToEkataDTO = new BdvRequestToEkataDTO();
-//        try {
-//            badRequestByHttpPost(endpointUri, "", bdvRequestToEkataDTO.toString());
-//        } catch (Exception e) {
-//            assertIntegration("400 Bad Request", e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    public void whenRequestToEkataAccountOpeningWithoutEmailAddress_RetrieveBadRequest_400() throws Exception {
-//
-//        JSONObject ekataRequestJsonTest = ekataRequestJsonTest();
-//        ekataRequestJsonTest.put("emailAddress", "");
-//
-//        try {
-//            badRequestByHttpPost(endpointUri, "", ekataRequestJsonTest.toString());
-//        } catch (Exception e) {
-//            assertIntegration("400 Bad Request", e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    public void whenRequestToEkataAccountOpeningWithoutPhone_RetrieveBadRequest_400() throws Exception {
-//
-//        JSONObject ekataRequestJsonTest = ekataRequestJsonTest();
-//        ekataRequestJsonTest.put("phone", "");
-//
-//        try {
-//            badRequestByHttpPost(endpointUri, "", ekataRequestJsonTest.toString());
-//        } catch (Exception e) {
-//            assertIntegration("400 Bad Request", e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    public void whenRequestToEkataAccountOpeningWithoutSerialNumber_RetrieveBadRequest_400() throws Exception {
-//
-//        JSONObject ekataRequestJsonTest = ekataRequestJsonTest();
-//        ekataRequestJsonTest.put("serialNumber", "");
-//
-//        try {
-//            badRequestByHttpPost(endpointUri, "", ekataRequestJsonTest.toString());
-//        } catch (Exception e) {
-//            assertIntegration("400 Bad Request", e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    public void whenCorrectRequestToEkataAccountOpeningSync_RetrieveUserCreated_201() throws Exception {
-//
-//        JSONObject ekataRequestJsonTest = realEkataRequestJsonTest();
-//
-//        try {
-//            createdByHttpPost(endpointUri, "", ekataRequestJsonTest.toString());
-//        } catch (Exception e) {
-//            assertIntegration("201 Created", e.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    public void whenCorrectRequestToEkataAccountOpeningASync_RetrieveUserAccepted_202() throws Exception {
-//
-//        JSONObject ekataRequestJsonTest = realEkataRequestJsonTest();
-//        ekataRequestJsonTest.put("webhookUrl", webhookUrl);
-//
-//        try {
-//            acceptedByHttpPost(endpointUri, "", ekataRequestJsonTest.toString());
-//        } catch (Exception e) {
-//            assertIntegration("202 Accepted", e.getMessage());
-//        }
-//    }
+        RequestPostDto requestPostDto = new RequestPostDto();
+        requestPostDto.setUri(props.getProperty("integration.test.base-uri"));
+        requestPostDto.setId("");
+        requestPostDto.setDataRequest(dataRequest.toString());
+        requestPostDto.setAuthKey(response.getBody().getAccess_token());
+        requestPostDto.setAuthType("Bearer");
+
+        /*Response StatusCode Check - 401*/
+        MvcResult result = unauthorizedByHttpPost(requestPostDto);
+        /*Response Content Check*/
+        assertIntegration("Rules is not OK", result.getResponse().getContentAsString());
+    }
 }

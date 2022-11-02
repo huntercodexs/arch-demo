@@ -25,6 +25,11 @@ public enum ResponseErrors {
             140,
             "Rules is not OK"),
 
+    SERVICE_ERROR_RULES_DOWN(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            150,
+            "Rules Server is DOWN"),
+
     SERVICE_ERROR_TEST(
             HttpStatus.ACCEPTED,
             160,
