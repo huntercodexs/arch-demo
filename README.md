@@ -411,14 +411,14 @@ Habilitar Nginx usando Docker.
 <td>
 Habilitar Swagger nos micro serviços.
 </td>
-<td>TODO</td>
+<td style="color: #FFFF00;">WORK</td>
 </tr>
 <tr>
 <td>8</td>
 <td>
 Habilitar Testes unitarios e de integração.
 </td>
-<td style="color: #FFFF00">WORK</td>
+<td style="color: #00FF00">DONE</td>
 </tr>
 <tr>
 <td>9</td>

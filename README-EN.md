@@ -385,7 +385,7 @@ Insert security into the SERVICE-DISCOVERY (Eureka) registration process.
 <td>
 Insert an ExceptionHanlder for error handling in the environment's microservices.
 </td>
-<td style="color: #FFFF00;">WORK</td>
+<td style="color: #00FF00;">DONE</td>
 </tr>
 <tr>
 <td>4</td>
@@ -413,14 +413,14 @@ Enable Nginx using Docker.
 <td>
 Enable Swagger in microservices.
 </td>
-<td>TODO</td>
+<td style="color: #FFFF00;">WORK</td>
 </tr>
 <tr>
 <td>8</td>
 <td>
 Enable Unit and Integration Tests.
 </td>
-<td>TODO</td>
+<td style="color: #00FF00;">DONE</td>
 </tr>
 <tr>
 <td>9</td>
