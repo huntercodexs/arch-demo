@@ -21,14 +21,14 @@ public enum ResponseErrors {
             "Address not found"),
 
     SERVICE_ERROR_RULES_NOK(
-            HttpStatus.UNAUTHORIZED,
+            HttpStatus.BAD_REQUEST,
             140,
             "Rules is not OK"),
 
-    SERVICE_ERROR_RULES_DOWN(
+    SERVICE_ERROR_RULES_FAIL(
             HttpStatus.INTERNAL_SERVER_ERROR,
             150,
-            "Rules Server is DOWN"),
+            "Rules Server Contact Failed"),
 
     SERVICE_ERROR_TEST(
             HttpStatus.ACCEPTED,

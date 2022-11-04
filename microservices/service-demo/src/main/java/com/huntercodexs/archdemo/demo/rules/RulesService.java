@@ -61,8 +61,8 @@ public class RulesService {
         try {
             response = restTemplate.postForEntity(rulesUrl, httpEntity, RulesResponseDto.class);
         } catch (RuntimeException re) {
-            log.error("Rules Server is Down: " + re.getMessage());
-            throw new ResponseException(ResponseErrors.SERVICE_ERROR_RULES_DOWN);
+            log.error("Rules Server Contact Failed: " + re.getMessage());
+            throw new ResponseException(ResponseErrors.SERVICE_ERROR_RULES_FAIL);
         }
 
         if (!Objects.requireNonNull(response.getBody()).getStatus()) {

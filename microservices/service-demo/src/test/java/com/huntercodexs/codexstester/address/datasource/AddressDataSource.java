@@ -1,12 +1,13 @@
-package com.huntercodexs.archdemo.demo.address.datasource;
+package com.huntercodexs.codexstester.address.datasource;
 
-import com.huntercodexs.archdemo.demo.abstractor.dto.Oauth2RequestTokenDto;
+import com.huntercodexs.archdemo.demo.dto.AddressRequestDto;
+import com.huntercodexs.codexstester.abstractor.dto.Oauth2RequestTokenDto;
 import com.huntercodexs.archdemo.demo.database.model.AddressEntity;
 import com.huntercodexs.archdemo.demo.dto.AddressResponseDto;
 import net.minidev.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 
-public class AddressDataSourceTest {
+public class AddressDataSource {
 
     public static final String routerPort = "33001";
     public static final String endpointUri = "/huntercodexs/arch-demo/service-demo/api/address";
@@ -22,12 +23,20 @@ public class AddressDataSourceTest {
         return oauth2RequestTokenDto;
     }
 
-    public static JSONObject dataSourceAddressRequestWrongRulesCode() {
+    public static JSONObject dataSourceAddressRequest() {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.appendField("rulesCode", "XXX12345");
+        jsonObject.appendField("rulesCode", "XYZ12345");
         jsonObject.appendField("postalCode", "12090002");
         jsonObject.appendField("webhook", "");
         return jsonObject;
+    }
+
+    public static AddressRequestDto dataSourceAddressRequestDto() {
+        AddressRequestDto addressRequestDto = new AddressRequestDto();
+        addressRequestDto.setRulesCode("XYZ12345");
+        addressRequestDto.setPostalCode("12090002");
+        addressRequestDto.setWebhook("");
+        return addressRequestDto;
     }
 
     public static AddressResponseDto dataSourceMapperFinalResponseDto() {

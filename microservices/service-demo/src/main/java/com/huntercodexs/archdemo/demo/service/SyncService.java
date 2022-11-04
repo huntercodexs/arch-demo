@@ -36,7 +36,7 @@ public class SyncService {
 
         ResponseEntity<AddressResponseDto> result = addressClient.addressSearch(postalCode);
 
-        if (result == null) {
+        if (result == null || result.getBody().getCep() == null) {
             throw new ResponseException(ResponseErrors.SERVICE_ERROR_NOT_FOUND);
         }
 

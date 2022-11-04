@@ -29,6 +29,7 @@ public class AddressController {
         * POST http://localhost:33001/huntercodexs/arch-demo/service-demo/api/address
         * BODY {"rulesCode":"XYZ12345","postalCode":"12090002","webhook":""}
         */
+        System.out.println("CHEGOU AQUI <<<<<<<<<<<<<<<<<<<<<!");
         return addressService.getAddress(addressRequestDto);
     }
 

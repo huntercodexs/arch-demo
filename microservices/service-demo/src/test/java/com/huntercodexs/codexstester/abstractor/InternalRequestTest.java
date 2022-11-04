@@ -1,9 +1,10 @@
-package com.huntercodexs.archdemo.demo.abstractor;
+package com.huntercodexs.codexstester.abstractor;
 
 import com.huntercodexs.archdemo.demo.AddressApplication;
-import com.huntercodexs.archdemo.demo.abstractor.dto.Oauth2RequestTokenDto;
-import com.huntercodexs.archdemo.demo.abstractor.dto.Oauth2ResponseTokenDto;
-import com.huntercodexs.archdemo.demo.abstractor.dto.RequestPostDto;
+import com.huntercodexs.codexstester.abstractor.dto.HeadersDto;
+import com.huntercodexs.codexstester.abstractor.dto.Oauth2RequestTokenDto;
+import com.huntercodexs.codexstester.abstractor.dto.Oauth2ResponseTokenDto;
+import com.huntercodexs.codexstester.abstractor.dto.RequestDto;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,24 +34,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AddressApplication.class)
 @WebAppConfiguration
-public abstract class IntegrationAbstractTest {
+public abstract class InternalRequestTest {
 
     protected MockMvc mockMvc;
-    private static final String propFile = "classpath:integration.test.properties";
+    private static final String propFile = "classpath:internal.test.properties";
     protected final Properties props = loadPropsTest();
-    protected String integrationUrlBaseTest = props.getProperty("integration.test.base-url");
-    protected String integrationUriBaseTest = props.getProperty("integration.test.base-uri");
-    protected final String integrationAuthorizationBasic = props.getProperty("integration.test.header.authorization-basic");
-    protected final String integrationAuthorizationBasicInvalid = props.getProperty("integration.test.header.authorization-basic-invalid");
-    protected final String integrationAuthorizationBearer = props.getProperty("integration.test.header.authorization-bearer");
-    protected final String integrationAuthorizationBearerInvalid = props.getProperty("integration.test.header.authorization-bearer-invalid");
-    protected final String integrationAppNameAuthorization = props.getProperty("integration.test.header.api-key.app-name");
-    protected final String integrationTokenAuthorization = props.getProperty("integration.test.header.api-key.token");
-    protected final String integrationSecretAuthorization = props.getProperty("integration.test.header.api-key.secret");
-    protected final String integrationValueAuthorization = props.getProperty("integration.test.header.api-key.value");
-    protected final String integrationGenericAuthorization = props.getProperty("integration.test.header.api-key.generic");
-    protected final String integrationAdditionalHeaderName = props.getProperty("integration.test.header.additional-name");
-    protected final String integrationAdditionalHeaderValue = props.getProperty("integration.test.header.additional-value");
+    protected String internalUrlBaseTest = props.getProperty("internal.test.base-url");
+    protected String internalUriBaseTest = props.getProperty("internal.test.base-uri");
+    protected final String internalAuthorizationBasic = props.getProperty("internal.test.header.authorization-basic");
+    protected final String internalAuthorizationBasicInvalid = props.getProperty("internal.test.header.authorization-basic-invalid");
+    protected final String internalAuthorizationBearer = props.getProperty("internal.test.header.authorization-bearer");
+    protected final String internalAuthorizationBearerInvalid = props.getProperty("internal.test.header.authorization-bearer-invalid");
+    protected final String internalAppNameAuthorization = props.getProperty("internal.test.header.api-key.app-name");
+    protected final String internalTokenAuthorization = props.getProperty("internal.test.header.api-key.token");
+    protected final String internalSecretAuthorization = props.getProperty("internal.test.header.api-key.secret");
+    protected final String internalValueAuthorization = props.getProperty("internal.test.header.api-key.value");
+    protected final String internalGenericAuthorization = props.getProperty("internal.test.header.api-key.generic");
+    protected final String internalAdditionalHeaderName = props.getProperty("internal.test.header.additional-name");
+    protected final String internalAdditionalHeaderValue = props.getProperty("internal.test.header.additional-value");
 
     @Autowired
     WebApplicationContext webApplicationContext;
@@ -65,7 +66,7 @@ public abstract class IntegrationAbstractTest {
         Properties properties = new Properties();
 
         try {
-            File file = ResourceUtils.getFile(IntegrationAbstractTest.propFile);
+            File file = ResourceUtils.getFile(InternalRequestTest.propFile);
             InputStream in = Files.newInputStream(file.toPath());
             properties.load(in);
         } catch (IOException ioe) {
@@ -78,19 +79,19 @@ public abstract class IntegrationAbstractTest {
     protected void createBeforeTest(String user_data) throws Exception {
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .post(integrationUriBaseTest)
+                                .post(internalUriBaseTest)
                                 .content(user_data)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 ).andReturn();
     }
 
     protected void rollbackTest(String id) throws Exception {
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .delete(integrationUrlBaseTest+integrationUriBaseTest+"/"+id)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .delete(internalUrlBaseTest + internalUriBaseTest +"/"+id)
+                                .header("Authorization", internalAuthorizationBasic)
                 ).andReturn();
     }
 
@@ -111,46 +112,68 @@ public abstract class IntegrationAbstractTest {
         return restTemplate.postForEntity(oauth2RequestTokenDto.getUrl() + credentials, httpEntity, Oauth2ResponseTokenDto.class);
     }
 
-    private HttpHeaders getCurrentTestHeaders(RequestPostDto requestPostDto) {
+    private HttpHeaders getCurrentTestHeaders(RequestDto requestDto, HeadersDto headersDto) {
 
         HttpHeaders headers = new HttpHeaders();
 
-        switch (requestPostDto.getAuthType()) {
-            case "Basic":
-                if (requestPostDto.getAuthKey().equals("") || requestPostDto.getAuthKey() == null) {
-                    headers.set("Authorization", "Basic " + integrationAuthorizationBasic.replaceFirst("Basic ", ""));
-                } else {
-                    headers.set("Authorization", "Basic " + requestPostDto.getAuthKey().replaceFirst("Basic ", ""));
-                }
-                break;
-            case "Bearer":
-                if (requestPostDto.getAuthKey().equals("") || requestPostDto.getAuthKey() == null) {
-                    headers.set("Authorization", "Bearer " + integrationAuthorizationBearer.replaceFirst("Bearer ", ""));
-                } else {
-                    headers.set("Authorization", "Bearer " + requestPostDto.getAuthKey().replaceFirst("Bearer ", ""));
-                }
-                break;
-            default:
-                headers.set("Authorization", null);
+        /*
+         * From properties file
+         */
+        if (internalAuthorizationBasic != null && !internalAuthorizationBasic.equals("")) {
+            headers.set("Authorization", "Basic " + internalAuthorizationBasic.replaceFirst("Basic ", ""));
+        }
+        if (internalAuthorizationBearer != null && !internalAuthorizationBearer.equals("")) {
+            headers.set("Authorization", "Bearer " + internalAuthorizationBearer.replaceFirst("Bearer ", ""));
+        }
+        if (internalTokenAuthorization != null && !internalTokenAuthorization.equals("")) {
+            headers.set("Api-Key-Token", internalTokenAuthorization);
+        }
+        if (internalAppNameAuthorization != null && !internalAppNameAuthorization.equals("")) {
+            headers.set("Api-Key-App-Name", internalAppNameAuthorization);
+        }
+        if (internalSecretAuthorization != null && !internalSecretAuthorization.equals("")) {
+            headers.set("Api-Key-Secret", internalSecretAuthorization);
+        }
+        if (internalValueAuthorization != null && !internalValueAuthorization.equals("")) {
+            headers.set("Api-Key-Value", internalValueAuthorization);
+        }
+        if (internalGenericAuthorization != null && !internalGenericAuthorization.equals("")) {
+            headers.set("Api-Key-Generic", internalGenericAuthorization);
+        }
+        if (internalAdditionalHeaderName != null && !internalAdditionalHeaderName.equals("")) {
+            if (internalAdditionalHeaderValue != null && !internalAdditionalHeaderValue.equals("")) {
+                headers.set(internalAdditionalHeaderName, internalAdditionalHeaderValue);
+            }
         }
 
-        if (!integrationTokenAuthorization.equals("")) {
-            headers.set("Api-Key-Token", integrationTokenAuthorization);
+        /*
+         * From HeadersDto Class (Overwrite above headers)
+         */
+        if (headersDto.getAuthorizationBasic() != null && !headersDto.getAuthorizationBasic().equals("")) {
+            headers.set("Authorization", "Basic " + headersDto.getAuthorizationBasic().replaceFirst("Basic ", ""));
         }
-        if (!integrationAppNameAuthorization.equals("")) {
-            headers.set("Api-Key-App-Name", integrationAppNameAuthorization);
+        if (headersDto.getAuthorizationBearer() != null && !headersDto.getAuthorizationBearer().equals("")) {
+            headers.set("Authorization", "Bearer " + headersDto.getAuthorizationBearer().replaceFirst("Bearer ", ""));
         }
-        if (!integrationSecretAuthorization.equals("")) {
-            headers.set("Api-Key-Secret", integrationSecretAuthorization);
+        if (headersDto.getApiKeyToken() != null && !headersDto.getApiKeyToken().equals("")) {
+            headers.set("Api-Key-Token", headersDto.getApiKeyToken());
         }
-        if (!integrationValueAuthorization.equals("")) {
-            headers.set("Api-Key-Value", integrationValueAuthorization);
+        if (headersDto.getApiKeyAppName() != null && !headersDto.getApiKeyAppName().equals("")) {
+            headers.set("Api-Key-App-Name", headersDto.getApiKeyAppName());
         }
-        if (!integrationGenericAuthorization.equals("")) {
-            headers.set("Api-Key-Generic", integrationGenericAuthorization);
+        if (headersDto.getApiKeySecret() != null && !headersDto.getApiKeySecret().equals("")) {
+            headers.set("Api-Key-Secret", headersDto.getApiKeySecret());
         }
-        if (!integrationAdditionalHeaderName.equals("") && !integrationAdditionalHeaderValue.equals("")) {
-            headers.set(integrationAdditionalHeaderName, integrationAdditionalHeaderValue);
+        if (headersDto.getApiKeyValue() != null && !headersDto.getApiKeyValue().equals("")) {
+            headers.set("Api-Key-Value", headersDto.getApiKeyValue());
+        }
+        if (headersDto.getApiKeyGeneric() != null && !headersDto.getApiKeyGeneric().equals("")) {
+            headers.set("Api-Key-Generic", headersDto.getApiKeyGeneric());
+        }
+        if (headersDto.getAddtionalName() != null && !headersDto.getAddtionalName().equals("")) {
+            if (headersDto.getAddtionalValue() != null && !headersDto.getAddtionalValue().equals("")) {
+                headers.set(headersDto.getAddtionalName(), headersDto.getAddtionalValue());
+            }
         }
 
         return headers;
@@ -161,15 +184,15 @@ public abstract class IntegrationAbstractTest {
      */
     protected void unauthorizedByHttpGet(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                 MockMvcRequestBuilders
-                        .get(integrationUriBaseTest)
+                        .get(internalUriBaseTest)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", integrationAuthorizationBasicInvalid)
+                        .header("Authorization", internalAuthorizationBasicInvalid)
                 )
                 .andExpect(status().isUnauthorized())
                 .andReturn();
@@ -177,15 +200,15 @@ public abstract class IntegrationAbstractTest {
 
     protected void methodNotAllowedByHttpGet(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .get(integrationUriBaseTest)
+                                .get(internalUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isMethodNotAllowed())
                 .andReturn();
@@ -193,15 +216,15 @@ public abstract class IntegrationAbstractTest {
 
     protected void badRequestByHttpGet(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .get(integrationUriBaseTest)
+                                .get(internalUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -209,15 +232,15 @@ public abstract class IntegrationAbstractTest {
 
     protected void okByHttpGet(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .get(integrationUriBaseTest)
+                                .get(internalUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -225,15 +248,15 @@ public abstract class IntegrationAbstractTest {
 
     protected void createdByHttpGet(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .get(integrationUriBaseTest)
+                                .get(internalUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -241,15 +264,15 @@ public abstract class IntegrationAbstractTest {
 
     protected void acceptedByHttpGet(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .get(integrationUriBaseTest)
+                                .get(internalUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isAccepted())
                 .andReturn();
@@ -257,15 +280,15 @@ public abstract class IntegrationAbstractTest {
 
     protected void notFoundByHttpGet(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .get(integrationUriBaseTest)
+                                .get(internalUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -273,15 +296,15 @@ public abstract class IntegrationAbstractTest {
 
     protected void conflictByHttpGet(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .get(integrationUriBaseTest)
+                                .get(internalUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -289,15 +312,15 @@ public abstract class IntegrationAbstractTest {
 
     protected void serverErrorByHttpGet(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .get(integrationUriBaseTest)
+                                .get(internalUriBaseTest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isInternalServerError())
                 .andReturn();
@@ -305,21 +328,19 @@ public abstract class IntegrationAbstractTest {
 
     /**
      * Using Http POST
-     *
-     * @return
      */
-    protected MvcResult unauthorizedByHttpPost(RequestPostDto requestPostDto) throws Exception {
+    protected MvcResult unauthorizedByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
 
-        if (!requestPostDto.getUri().equals("")) integrationUriBaseTest = requestPostDto.getUri();
-        if (!requestPostDto.getId().equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+requestPostDto.getId();
+        if (!requestDto.getUri().equals("")) internalUriBaseTest = requestDto.getUri();
+        if (!requestDto.getId().equals("")) internalUriBaseTest = internalUriBaseTest +"/"+ requestDto.getId();
 
         return mockMvc.perform(
                         MockMvcRequestBuilders
-                                .post(integrationUrlBaseTest + integrationUriBaseTest)
-                                .content(requestPostDto.getDataRequest())
+                                .post(internalUriBaseTest)
+                                .content(requestDto.getDataRequest())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .headers(getCurrentTestHeaders(requestPostDto))
+                                .headers(getCurrentTestHeaders(requestDto, headersDto))
                 )
                 .andExpect(status().isUnauthorized())
                 .andReturn();
@@ -327,16 +348,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void methodNotAllowedByHttpPost(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .post(integrationUriBaseTest)
+                                .post(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isMethodNotAllowed())
                 .andReturn();
@@ -344,16 +365,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void badRequestByHttpPost(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .post(integrationUriBaseTest)
+                                .post(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -361,16 +382,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void okByHttpPost(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .post(integrationUriBaseTest)
+                                .post(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -378,16 +399,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void createdByHttpPost(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .post(integrationUriBaseTest)
+                                .post(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -395,16 +416,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void acceptedByHttpPost(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .post(integrationUriBaseTest)
+                                .post(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isAccepted())
                 .andReturn();
@@ -412,16 +433,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void notFoundByHttpPost(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .post(integrationUriBaseTest)
+                                .post(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -429,16 +450,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void foundByHttpPost(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .post(integrationUriBaseTest)
+                                .post(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isFound())
                 .andReturn();
@@ -446,16 +467,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void conflictByHttpPost(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .post(integrationUriBaseTest)
+                                .post(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -463,16 +484,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void serverErrorByHttpPost(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .post(integrationUriBaseTest)
+                                .post(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isInternalServerError())
                 .andReturn();
@@ -483,16 +504,16 @@ public abstract class IntegrationAbstractTest {
      */
     protected void unauthorizedByHttpPut(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .put(integrationUriBaseTest)
+                                .put(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasicInvalid)
+                                .header("Authorization", internalAuthorizationBasicInvalid)
                 )
                 .andExpect(status().isUnauthorized())
                 .andReturn();
@@ -500,16 +521,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void methodNotAllowedByHttpPut(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .put(integrationUriBaseTest)
+                                .put(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isMethodNotAllowed())
                 .andReturn();
@@ -517,16 +538,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void badRequestByHttpPut(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .put(integrationUriBaseTest)
+                                .put(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -534,16 +555,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void okByHttpPut(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .put(integrationUriBaseTest)
+                                .put(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -551,16 +572,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void createdByHttpPut(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .put(integrationUriBaseTest)
+                                .put(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -568,16 +589,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void acceptedByHttpPut(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .put(integrationUriBaseTest)
+                                .put(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isAccepted())
                 .andReturn();
@@ -585,16 +606,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void notFoundByHttpPut(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .put(integrationUriBaseTest)
+                                .put(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -602,16 +623,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void conflictByHttpPut(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .put(integrationUriBaseTest)
+                                .put(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -619,16 +640,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void serverErrorByHttpPut(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .put(integrationUriBaseTest)
+                                .put(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isInternalServerError())
                 .andReturn();
@@ -639,13 +660,13 @@ public abstract class IntegrationAbstractTest {
      */
     protected void unauthorizedByHttpDelete(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                 MockMvcRequestBuilders
-                        .delete(integrationUriBaseTest)
-                        .header("Authorization", integrationAuthorizationBasicInvalid)
+                        .delete(internalUriBaseTest)
+                        .header("Authorization", internalAuthorizationBasicInvalid)
                 )
                 .andExpect(status().isUnauthorized())
                 .andReturn();
@@ -653,13 +674,13 @@ public abstract class IntegrationAbstractTest {
 
     protected void methodNotAllowedByHttpDelete(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .delete(integrationUriBaseTest)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .delete(internalUriBaseTest)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isMethodNotAllowed())
                 .andReturn();
@@ -667,13 +688,13 @@ public abstract class IntegrationAbstractTest {
 
     protected void badRequestByHttpDelete(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .delete(integrationUriBaseTest)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .delete(internalUriBaseTest)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -681,13 +702,13 @@ public abstract class IntegrationAbstractTest {
 
     protected void conflictByHttpDelete(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .delete(integrationUriBaseTest)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .delete(internalUriBaseTest)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -695,13 +716,13 @@ public abstract class IntegrationAbstractTest {
 
     protected void okByHttpDelete(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .delete(integrationUriBaseTest)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .delete(internalUriBaseTest)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -709,13 +730,13 @@ public abstract class IntegrationAbstractTest {
 
     protected void acceptedByHttpDelete(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .delete(integrationUriBaseTest)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .delete(internalUriBaseTest)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isAccepted())
                 .andReturn();
@@ -723,13 +744,13 @@ public abstract class IntegrationAbstractTest {
 
     protected void notFoundByHttpDelete(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .delete(integrationUriBaseTest)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .delete(internalUriBaseTest)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -737,13 +758,13 @@ public abstract class IntegrationAbstractTest {
 
     protected void serverErrorByHttpDelete(String uri, String id) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .delete(integrationUriBaseTest)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .delete(internalUriBaseTest)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isInternalServerError())
                 .andReturn();
@@ -754,16 +775,16 @@ public abstract class IntegrationAbstractTest {
      */
     protected void unauthorizedByHttpPatch(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .patch(integrationUriBaseTest)
+                                .patch(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasicInvalid)
+                                .header("Authorization", internalAuthorizationBasicInvalid)
                 )
                 .andExpect(status().isUnauthorized())
                 .andReturn();
@@ -771,16 +792,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void methodNotAllowedByHttpPatch(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .patch(integrationUriBaseTest)
+                                .patch(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isMethodNotAllowed())
                 .andReturn();
@@ -788,16 +809,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void badRequestByHttpPatch(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .patch(integrationUriBaseTest)
+                                .patch(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -805,16 +826,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void okByHttpPatch(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .patch(integrationUriBaseTest)
+                                .patch(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -822,16 +843,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void acceptedByHttpPatch(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .patch(integrationUriBaseTest)
+                                .patch(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isAccepted())
                 .andReturn();
@@ -839,16 +860,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void notFoundByHttpPatch(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .patch(integrationUriBaseTest)
+                                .patch(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -856,16 +877,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void conflictByHttpPatch(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .patch(integrationUriBaseTest)
+                                .patch(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -873,16 +894,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void serverErrorByHttpPatch(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .patch(integrationUriBaseTest)
+                                .patch(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isInternalServerError())
                 .andReturn();
@@ -893,16 +914,16 @@ public abstract class IntegrationAbstractTest {
      */
     protected void unauthorizedByHttpHead(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .head(integrationUriBaseTest)
+                                .head(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasicInvalid)
+                                .header("Authorization", internalAuthorizationBasicInvalid)
                 )
                 .andExpect(status().isUnauthorized())
                 .andReturn();
@@ -910,16 +931,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void methodNotAllowedByHttpHead(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .head(integrationUriBaseTest)
+                                .head(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isMethodNotAllowed())
                 .andReturn();
@@ -927,16 +948,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void badRequestByHttpHead(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .head(integrationUriBaseTest)
+                                .head(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -944,16 +965,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void okByHttpHead(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .head(integrationUriBaseTest)
+                                .head(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -961,16 +982,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void notFoundByHttpHead(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .head(integrationUriBaseTest)
+                                .head(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -978,16 +999,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void conflictByHttpHead(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .head(integrationUriBaseTest)
+                                .head(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -995,16 +1016,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void serverErrorByHttpHead(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .head(integrationUriBaseTest)
+                                .head(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isInternalServerError())
                 .andReturn();
@@ -1015,16 +1036,16 @@ public abstract class IntegrationAbstractTest {
      */
     protected void unauthorizedByHttpOptions(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .options(integrationUriBaseTest)
+                                .options(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasicInvalid)
+                                .header("Authorization", internalAuthorizationBasicInvalid)
                 )
                 .andExpect(status().isUnauthorized())
                 .andReturn();
@@ -1032,16 +1053,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void methodNotAllowedByHttpOptions(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .options(integrationUriBaseTest)
+                                .options(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isMethodNotAllowed())
                 .andReturn();
@@ -1049,16 +1070,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void badRequestByHttpOptions(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .options(integrationUriBaseTest)
+                                .options(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -1066,16 +1087,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void okByHttpOptions(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .options(integrationUriBaseTest)
+                                .options(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
@@ -1083,16 +1104,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void notFoundByHttpOptions(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .options(integrationUriBaseTest)
+                                .options(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -1100,16 +1121,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void conflictByHttpOptions(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .options(integrationUriBaseTest)
+                                .options(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isConflict())
                 .andReturn();
@@ -1117,16 +1138,16 @@ public abstract class IntegrationAbstractTest {
 
     protected void serverErrorByHttpOptions(String uri, String id, String dataRequest) throws Exception {
 
-        if (!uri.equals("")) integrationUriBaseTest = uri;
-        if (!id.equals("")) integrationUriBaseTest = integrationUriBaseTest+"/"+id;
+        if (!uri.equals("")) internalUriBaseTest = uri;
+        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
 
         mockMvc.perform(
                         MockMvcRequestBuilders
-                                .options(integrationUriBaseTest)
+                                .options(internalUriBaseTest)
                                 .content(dataRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", integrationAuthorizationBasic)
+                                .header("Authorization", internalAuthorizationBasic)
                 )
                 .andExpect(status().isInternalServerError())
                 .andReturn();

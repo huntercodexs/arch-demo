@@ -1,4 +1,4 @@
-package com.huntercodexs.archdemo.demo.abstractor.dto;
+package com.huntercodexs.codexstester.abstractor.dto;
 
 import lombok.*;
 

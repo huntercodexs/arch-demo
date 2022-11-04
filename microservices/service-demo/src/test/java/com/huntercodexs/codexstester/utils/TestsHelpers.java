@@ -1,4 +1,4 @@
-package com.huntercodexs.archdemo.demo.utils;
+package com.huntercodexs.codexstester.utils;
 
 import org.springframework.util.DigestUtils;
 

@@ -1,4 +1,4 @@
-package com.huntercodexs.archdemo.demo.abstractor;
+package com.huntercodexs.codexstester.abstractor;
 
 import com.huntercodexs.archdemo.demo.AddressApplication;
 import org.apache.commons.lang3.StringUtils;

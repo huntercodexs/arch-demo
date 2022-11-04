@@ -1,4 +1,4 @@
-package com.huntercodexs.archdemo.demo.abstractor.dto;
+package com.huntercodexs.codexstester.abstractor.dto;
 
 import lombok.*;
 
@@ -7,10 +7,10 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class RequestPostDto {
+public class RequestDto {
     String uri;
     String id;
     String dataRequest;
-    String authKey;
-    String authType;
+    String expetecdMessage;
+    int expectedCode;
 }

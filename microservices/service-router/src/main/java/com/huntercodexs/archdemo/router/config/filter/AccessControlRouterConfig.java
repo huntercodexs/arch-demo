@@ -34,6 +34,9 @@ public class AccessControlRouterConfig extends ZuulFilter {
     @Autowired
     RestTemplate restTemplate;
 
+    @Autowired
+    HttpServletRequest httpServletRequest;
+
     @Override
     public String filterType() {
         return "pre";
@@ -54,8 +57,30 @@ public class AccessControlRouterConfig extends ZuulFilter {
 
         RequestContext ctx = RequestContext.getCurrentContext();
 
+        System.out.println("=========================================================");
+        System.out.println("REQUEST CONTEXT");
+        System.out.println(RequestContext.getCurrentContext());
+        System.out.println(ctx.getRequest());
+        System.out.println(ctx.getRequest().getRequestURI());
+        System.out.println(ctx.getRequest().getHeaderNames());
+        System.out.println(ctx.getRequestQueryParams());
+        System.out.println(ctx.getRouteHost());
+        System.out.println("=========================================================");
+
+        System.out.println("=========================================================");
+        System.out.println("SERVLET REQUESTS");
+        System.out.println(httpServletRequest.getHeader("Authorization"));
+        System.out.println(httpServletRequest.getHeader("Access-Code"));
+        System.out.println("=========================================================");
+
         /*Get Token*/
         if (ctx.getRequest().getRequestURI().equals(uriToken)) {
+
+            System.out.println("=========================================================");
+            System.out.println("GET TOKEN");
+            System.out.println(ctx.getRequest().getRequestURI());
+            System.out.println("=========================================================");
+
             /*forwarding to microservices*/
             ctx.setSendZuulResponse(true);
             return null;
@@ -67,6 +92,12 @@ public class AccessControlRouterConfig extends ZuulFilter {
         String body = "?token="+token;
         AccessControlRouterEntity auth = accessControlRouterRepository.findByAccessCode(accessCode);
 
+        System.out.println("=========================================================");
+        System.out.println("AUTH");
+        System.out.println(accessCode);
+        System.out.println(auth);
+        System.out.println("=========================================================");
+
         if (auth == null) {
             JSONObject response = setErrorResponse("invalid access code");
 
@@ -75,6 +106,12 @@ public class AccessControlRouterConfig extends ZuulFilter {
             ctx.setResponseStatusCode(HttpStatus.UNAUTHORIZED.value());
             ctx.setResponseBody(response.toJSONString());
             ctx.getResponse().setContentType("application/json");
+
+            System.out.println("=========================================================");
+            System.out.println("INVALID ACCESS CODE");
+            System.out.println(ctx);
+            System.out.println("=========================================================");
+
             return ctx;
         }
 
@@ -92,8 +129,18 @@ public class AccessControlRouterConfig extends ZuulFilter {
                 ctx.setResponseBody(response.toJSONString());
                 ctx.getResponse().setContentType("application/json");
 
+                System.out.println("=========================================================");
+                System.out.println("INVALID ACCESS TOKEN");
+                System.out.println(ctx);
+                System.out.println("=========================================================");
+
                 return ctx;
             }
+
+            System.out.println("=========================================================");
+            System.out.println(" FORWARDING <<<<<<< << << < < < < ");
+            System.out.println(ctx.getRequest().getRequestURI());
+            System.out.println("=========================================================");
 
             /*forwarding to microservices*/
             ctx.setSendZuulResponse(true);
@@ -124,6 +171,11 @@ public class AccessControlRouterConfig extends ZuulFilter {
     }
 
     private String getAccessCode(HttpServletRequest accessCode) {
+        System.out.println("=============================================================");
+        System.out.println("HEADER");
+        System.out.println(accessCode.toString());
+        System.out.println(accessCode.getHeader("Access-Code"));
+        System.out.println("=============================================================");
         try {
             return accessCode
                     .getHeader("Access-Code")
