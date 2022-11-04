@@ -1,7 +1,7 @@
 package com.huntercodexs.archdemo.demo.rules;
 
-import com.huntercodexs.archdemo.demo.config.response.errors.ResponseErrors;
-import com.huntercodexs.archdemo.demo.config.response.exception.ResponseException;
+import com.huntercodexs.archdemo.demo.config.codexsresponser.errors.CodexsResponserEditableErrors;
+import com.huntercodexs.archdemo.demo.config.codexsresponser.exception.CodexsResponserException;
 import com.huntercodexs.archdemo.demo.dto.RulesRequestDto;
 import com.huntercodexs.archdemo.demo.dto.RulesResponseDto;
 import lombok.extern.slf4j.Slf4j;
@@ -63,14 +63,14 @@ public class RulesService {
         } catch (RuntimeException re) {
             log.error("Rules Server Contact Failed: " + re.getMessage());
             if (re.getMessage().equals("401 null")) {
-                throw new ResponseException(ResponseErrors.SERVICE_ERROR_ACCESS_DENIED);
+                throw new CodexsResponserException(CodexsResponserEditableErrors.SERVICE_ERROR_ACCESS_DENIED);
             }
-            throw new ResponseException(ResponseErrors.SERVICE_ERROR_RULES_FAIL);
+            throw new CodexsResponserException(CodexsResponserEditableErrors.SERVICE_ERROR_RULES_FAIL);
         }
 
         if (!Objects.requireNonNull(response.getBody()).getStatus()) {
             log.error("Invalid Rules: " + response.getBody().getMessage());
-            throw new ResponseException(ResponseErrors.SERVICE_ERROR_RULES_NOK);
+            throw new CodexsResponserException(CodexsResponserEditableErrors.SERVICE_ERROR_RULES_NOK);
         }
 
     }

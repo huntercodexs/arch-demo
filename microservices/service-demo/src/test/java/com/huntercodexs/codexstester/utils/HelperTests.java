@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
-public class TestsHelpers {
+public class HelperTests {
 
     public static String md5(String data){
         return DigestUtils.md5DigestAsHex(data.getBytes());

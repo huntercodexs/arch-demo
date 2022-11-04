@@ -33,25 +33,25 @@ import java.util.Properties;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AddressApplication.class)
 @WebAppConfiguration
-public abstract class ExternalRequestTest extends CodexsHttpMethod {
+public abstract class AbstractExternalRequestTests extends AvailableHttpMethodTests {
 
     protected MockMvc mockMvc;
     protected static final RestTemplate restTemplate = new RestTemplate();
-    private static final String propFile = "classpath:external.test.properties";
+    private static final String propFile = "classpath:external.tests.properties";
     protected final Properties props = loadPropsTest();
-    protected String externalBaseTest = props.getProperty("external.test.base-url");
-    protected String externalUriBaseTest = props.getProperty("external.test.base-uri");
-    protected final String externalAuthorizationBasic = props.getProperty("external.test.header.authorization-basic");
-    protected final String externalAuthorizationBasicInvalid = props.getProperty("external.test.header.authorization-basic-invalid");
-    protected final String externalAuthorizationBearer = props.getProperty("external.test.header.authorization-bearer");
-    protected final String externalAuthorizationBearerInvalid = props.getProperty("external.test.header.authorization-bearer-invalid");
-    protected final String externalAppNameAuthorization = props.getProperty("external.test.header.api-key.app-name");
-    protected final String externalTokenAuthorization = props.getProperty("external.test.header.api-key.token");
-    protected final String externalSecretAuthorization = props.getProperty("external.test.header.api-key.secret");
-    protected final String externalValueAuthorization = props.getProperty("external.test.header.api-key.value");
-    protected final String externalGenericAuthorization = props.getProperty("external.test.header.api-key.generic");
-    protected final String externalAdditionalHeaderName = props.getProperty("external.test.header.additional-name");
-    protected final String externalAdditionalHeaderValue = props.getProperty("external.test.header.additional-value");
+    protected String externalBaseTest = props.getProperty("external.tests.base-url");
+    protected String externalUriBaseTest = props.getProperty("external.tests.base-uri");
+    protected final String externalAuthorizationBasic = props.getProperty("external.tests.header.authorization-basic");
+    protected final String externalAuthorizationBasicInvalid = props.getProperty("external.tests.header.authorization-basic-invalid");
+    protected final String externalAuthorizationBearer = props.getProperty("external.tests.header.authorization-bearer");
+    protected final String externalAuthorizationBearerInvalid = props.getProperty("external.tests.header.authorization-bearer-invalid");
+    protected final String externalAppNameAuthorization = props.getProperty("external.tests.header.api-key.app-name");
+    protected final String externalTokenAuthorization = props.getProperty("external.tests.header.api-key.token");
+    protected final String externalSecretAuthorization = props.getProperty("external.tests.header.api-key.secret");
+    protected final String externalValueAuthorization = props.getProperty("external.tests.header.api-key.value");
+    protected final String externalGenericAuthorization = props.getProperty("external.tests.header.api-key.generic");
+    protected final String externalAdditionalHeaderName = props.getProperty("external.tests.header.additional-name");
+    protected final String externalAdditionalHeaderValue = props.getProperty("external.tests.header.additional-value");
 
     @Autowired
     WebApplicationContext webApplicationContext;
@@ -64,7 +64,7 @@ public abstract class ExternalRequestTest extends CodexsHttpMethod {
         Properties properties = new Properties();
 
         try {
-            File file = ResourceUtils.getFile(ExternalRequestTest.propFile);
+            File file = ResourceUtils.getFile(AbstractExternalRequestTests.propFile);
             InputStream in = Files.newInputStream(file.toPath());
             properties.load(in);
         } catch (IOException ioe) {
@@ -202,8 +202,8 @@ public abstract class ExternalRequestTest extends CodexsHttpMethod {
 
     private void dispatcher(RequestDto requestDto, HeadersDto headersDto, String method) {
 
-        if (!requestDto.getUri().equals("")) externalUriBaseTest = requestDto.getUri();
-        if (!requestDto.getId().equals("")) externalUriBaseTest = externalUriBaseTest +"/"+ requestDto.getId();
+        if (requestDto.getUri() != null && !requestDto.getUri().equals("")) externalUriBaseTest = requestDto.getUri();
+        if (requestDto.getId() != null && !requestDto.getId().equals("")) externalUriBaseTest = externalUriBaseTest +"/"+ requestDto.getId();
 
         String url = externalBaseTest + externalUriBaseTest;
         HttpEntity<?> httpEntity = new HttpEntity<>(requestDto.getDataRequest(), getCurrentTestHeaders(requestDto, headersDto));

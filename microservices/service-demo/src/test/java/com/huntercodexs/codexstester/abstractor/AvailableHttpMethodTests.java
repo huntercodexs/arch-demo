@@ -1,6 +1,6 @@
 package com.huntercodexs.codexstester.abstractor;
 
-public abstract class CodexsHttpMethod {
+public abstract class AvailableHttpMethodTests {
     protected static final String HTTP_METHOD_GET = "GET";
     protected static final String HTTP_METHOD_POST = "POST";
     protected static final String HTTP_METHOD_DELETE = "DELETE";

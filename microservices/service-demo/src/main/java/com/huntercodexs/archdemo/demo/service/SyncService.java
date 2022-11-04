@@ -1,8 +1,8 @@
 package com.huntercodexs.archdemo.demo.service;
 
 import com.huntercodexs.archdemo.demo.client.AddressClient;
-import com.huntercodexs.archdemo.demo.config.response.errors.ResponseErrors;
-import com.huntercodexs.archdemo.demo.config.response.exception.ResponseException;
+import com.huntercodexs.archdemo.demo.config.codexsresponser.errors.CodexsResponserEditableErrors;
+import com.huntercodexs.archdemo.demo.config.codexsresponser.exception.CodexsResponserException;
 import com.huntercodexs.archdemo.demo.database.model.AddressEntity;
 import com.huntercodexs.archdemo.demo.database.repository.AddressRepository;
 import com.huntercodexs.archdemo.demo.dto.AddressResponseDto;
@@ -37,7 +37,7 @@ public class SyncService {
         ResponseEntity<AddressResponseDto> result = addressClient.addressSearch(postalCode);
 
         if (result == null || result.getBody().getCep() == null) {
-            throw new ResponseException(ResponseErrors.SERVICE_ERROR_NOT_FOUND);
+            throw new CodexsResponserException(CodexsResponserEditableErrors.SERVICE_ERROR_NOT_FOUND);
         }
 
         if (!result.getStatusCode().is4xxClientError()) {
@@ -45,7 +45,7 @@ public class SyncService {
             return result.getBody();
         }
 
-        throw new ResponseException(ResponseErrors.SERVICE_ERROR_INTERNAL);
+        throw new CodexsResponserException(CodexsResponserEditableErrors.SERVICE_ERROR_INTERNAL);
     }
 
     public void saveAddress(ResponseEntity<AddressResponseDto> result) {

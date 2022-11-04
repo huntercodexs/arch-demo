@@ -1,17 +1,17 @@
 package com.huntercodexs.codexstester.tests.unitary;
 
 import com.huntercodexs.archdemo.demo.client.AddressClient;
-import com.huntercodexs.archdemo.demo.config.response.errors.ResponseErrors;
-import com.huntercodexs.archdemo.demo.config.response.exception.ResponseException;
+import com.huntercodexs.archdemo.demo.config.codexsresponser.errors.CodexsResponserEditableErrors;
+import com.huntercodexs.archdemo.demo.config.codexsresponser.exception.CodexsResponserException;
 import com.huntercodexs.archdemo.demo.database.model.AddressEntity;
 import com.huntercodexs.archdemo.demo.database.repository.AddressRepository;
 import com.huntercodexs.archdemo.demo.dto.AddressResponseDto;
 import com.huntercodexs.archdemo.demo.rules.RulesService;
 import com.huntercodexs.archdemo.demo.service.AddressService;
 import com.huntercodexs.archdemo.demo.service.SyncService;
-import com.huntercodexs.codexstester.abstractor.UnitAbstractTest;
-import com.huntercodexs.codexstester.tests.datasource.DataSource;
-import com.huntercodexs.codexstester.utils.TestsHelpers;
+import com.huntercodexs.codexstester.abstractor.AbstractUnitaryTests;
+import com.huntercodexs.codexstester.tests.datasource.DataSourceTests;
+import com.huntercodexs.codexstester.utils.HelperTests;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static com.huntercodexs.archdemo.demo.mapper.AddressResponseMapper.mapperFinalResponseDtoByEntity;
 import static com.huntercodexs.archdemo.demo.mapper.AddressResponseMapper.mapperInitialResponseDto;
 
-public class UnitaryTest extends UnitAbstractTest {
+public class UnitaryTests extends AbstractUnitaryTests {
 
     @Autowired
     AddressService addressService;
@@ -37,26 +37,26 @@ public class UnitaryTest extends UnitAbstractTest {
     @Test
     public void whenMapperInitialResponseDtoTest_FromAddressResponseMapper_AssertExact() {
         AddressResponseDto result = mapperInitialResponseDto();
-        assertionExact(TestsHelpers.md5(result.toString()), TestsHelpers.md5(new AddressResponseDto().toString()));
+        assertionExact(HelperTests.md5(result.toString()), HelperTests.md5(new AddressResponseDto().toString()));
     }
 
     @Test
     public void whenMapperFinalResponseDtoTest_FromAddressResponseMapper_AssertExact() {
-        AddressResponseDto addressResponseDto = DataSource.dataSourceMapperFinalResponseDto();
+        AddressResponseDto addressResponseDto = DataSourceTests.dataSourceMapperFinalResponseDto();
         AddressResponseDto result = mapperFinalResponseDtoByEntity(addressResponseDto);
-        assertionExact(TestsHelpers.md5(result.toString()), TestsHelpers.md5(new AddressResponseDto().toString()));
+        assertionExact(HelperTests.md5(result.toString()), HelperTests.md5(new AddressResponseDto().toString()));
     }
 
     @Test
     public void whenMapperFinalResponseDtoByEntityTest_FromAddressResponseMapper_AssertBoolean() {
-        AddressEntity addressEntity = DataSource.dataSourceAddressEntityEmpty();
+        AddressEntity addressEntity = DataSourceTests.dataSourceAddressEntityEmpty();
         mapperFinalResponseDtoByEntity(addressEntity);
         assertionBool(true, true);
     }
 
     @Test
     public void whenRunAddressSyncTest_FromSyncService_AssertExact() {
-        AddressEntity addressEntity = DataSource.dataSourceAddressEntityFill();
+        AddressEntity addressEntity = DataSourceTests.dataSourceAddressEntityFill();
         AddressResponseDto result = syncService.runAddressSync(addressEntity.getCep());
         assertionExact(result.getCep().replaceAll("[^0-9]", ""), addressEntity.getCep());
     }
@@ -93,7 +93,7 @@ public class UnitaryTest extends UnitAbstractTest {
     @Transactional
     public void whenSaveAddressTest_FromSyncService_AssertTrue_Windows() {
         System.out.println(System.getProperty("os.name"));
-        ResponseEntity<AddressResponseDto> dataFake = DataSource.dataSourceAddressEntityResponse();
+        ResponseEntity<AddressResponseDto> dataFake = DataSourceTests.dataSourceAddressEntityResponse();
         syncService.saveAddress(dataFake);
         AddressEntity result = addressRepository.findByCep(dataFake.getBody().getCep());
         assertionExact(result.getCep(), dataFake.getBody().getCep());
@@ -101,7 +101,7 @@ public class UnitaryTest extends UnitAbstractTest {
 
     public void whenSaveAddressTest_FromSyncService_AssertTrue_Linux() {
         System.out.println(System.getProperty("os.name"));
-        ResponseEntity<AddressResponseDto> dataFake = DataSource.dataSourceAddressEntityResponse();
+        ResponseEntity<AddressResponseDto> dataFake = DataSourceTests.dataSourceAddressEntityResponse();
         syncService.saveAddress(dataFake);
         AddressEntity result = addressRepository.findByCep(dataFake.getBody().getCep());
         addressRepository.deleteById(result.getId());
@@ -120,18 +120,22 @@ public class UnitaryTest extends UnitAbstractTest {
     @Test
     public void whenExceptionHandlerTest_FromResponseExceptionHandler_AssertExact() {
         try {
-            throw new ResponseException(ResponseErrors.SERVICE_ERROR_TEST);
+            throw new CodexsResponserException(CodexsResponserEditableErrors.SERVICE_ERROR_TEST);
         } catch (Exception ex) {
-            assertionExact(ex.getMessage(), ResponseErrors.SERVICE_ERROR_TEST.getMessage());
+            assertionExact(ex.getMessage(), CodexsResponserEditableErrors.SERVICE_ERROR_TEST.getMessage());
         }
     }
 
+    /**
+     * @apiNote Before run this test check if Server Rules is down
+     * */
     @Test
     public void whenRunRulesServerButItIsDownTest_AssertText() throws Exception {
         try {
-            rulesService.isRulesValid("XXX-123", "SERVICE-NAME-TEST");
+            rulesService.isRulesValid("XYZ-123", "SERVICE-NAME-TEST");
         } catch (Exception ex) {
-            assertionText("Rules Server Contact Failed", ex.getMessage());
+            System.out.println(ex.getMessage());
+            assertionText("Access Denied", ex.getMessage());
         }
     }
 

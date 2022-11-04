@@ -36,24 +36,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AddressApplication.class)
 @WebAppConfiguration
-public abstract class InternalRequestTest extends CodexsHttpMethod {
+public abstract class AbstractInternalRequestTests extends AvailableHttpMethodTests {
 
     protected MockMvc mockMvc;
-    private static final String propFile = "classpath:internal.test.properties";
+    private static final String propFile = "classpath:internal.tests.properties";
     protected final Properties props = loadPropsTest();
-    protected String internalUrlBaseTest = props.getProperty("internal.test.base-url");
-    protected String internalUriBaseTest = props.getProperty("internal.test.base-uri");
-    protected final String internalAuthorizationBasic = props.getProperty("internal.test.header.authorization-basic");
-    protected final String internalAuthorizationBasicInvalid = props.getProperty("internal.test.header.authorization-basic-invalid");
-    protected final String internalAuthorizationBearer = props.getProperty("internal.test.header.authorization-bearer");
-    protected final String internalAuthorizationBearerInvalid = props.getProperty("internal.test.header.authorization-bearer-invalid");
-    protected final String internalAppNameAuthorization = props.getProperty("internal.test.header.api-key.app-name");
-    protected final String internalTokenAuthorization = props.getProperty("internal.test.header.api-key.token");
-    protected final String internalSecretAuthorization = props.getProperty("internal.test.header.api-key.secret");
-    protected final String internalValueAuthorization = props.getProperty("internal.test.header.api-key.value");
-    protected final String internalGenericAuthorization = props.getProperty("internal.test.header.api-key.generic");
-    protected final String internalAdditionalHeaderName = props.getProperty("internal.test.header.additional-name");
-    protected final String internalAdditionalHeaderValue = props.getProperty("internal.test.header.additional-value");
+    protected String internalUrlBaseTest = props.getProperty("internal.tests.base-url");
+    protected String internalUriBaseTest = props.getProperty("internal.tests.base-uri");
+    protected final String internalAuthorizationBasic = props.getProperty("internal.tests.header.authorization-basic");
+    protected final String internalAuthorizationBasicInvalid = props.getProperty("internal.tests.header.authorization-basic-invalid");
+    protected final String internalAuthorizationBearer = props.getProperty("internal.tests.header.authorization-bearer");
+    protected final String internalAuthorizationBearerInvalid = props.getProperty("internal.tests.header.authorization-bearer-invalid");
+    protected final String internalAppNameAuthorization = props.getProperty("internal.tests.header.api-key.app-name");
+    protected final String internalTokenAuthorization = props.getProperty("internal.tests.header.api-key.token");
+    protected final String internalSecretAuthorization = props.getProperty("internal.tests.header.api-key.secret");
+    protected final String internalValueAuthorization = props.getProperty("internal.tests.header.api-key.value");
+    protected final String internalGenericAuthorization = props.getProperty("internal.tests.header.api-key.generic");
+    protected final String internalAdditionalHeaderName = props.getProperty("internal.tests.header.additional-name");
+    protected final String internalAdditionalHeaderValue = props.getProperty("internal.tests.header.additional-value");
 
     @Autowired
     WebApplicationContext webApplicationContext;
@@ -68,7 +68,7 @@ public abstract class InternalRequestTest extends CodexsHttpMethod {
         Properties properties = new Properties();
 
         try {
-            File file = ResourceUtils.getFile(InternalRequestTest.propFile);
+            File file = ResourceUtils.getFile(AbstractInternalRequestTests.propFile);
             InputStream in = Files.newInputStream(file.toPath());
             properties.load(in);
         } catch (IOException ioe) {
@@ -192,8 +192,8 @@ public abstract class InternalRequestTest extends CodexsHttpMethod {
 
         MockHttpServletRequestBuilder requestBuilder = null;
 
-        if (!requestDto.getUri().equals("")) internalUriBaseTest = requestDto.getUri();
-        if (!requestDto.getId().equals("")) internalUriBaseTest = internalUriBaseTest +"/"+ requestDto.getId();
+        if (requestDto.getUri() != null && !requestDto.getUri().equals("")) internalUriBaseTest = requestDto.getUri();
+        if (requestDto.getId() != null && !requestDto.getId().equals("")) internalUriBaseTest = internalUriBaseTest +"/"+ requestDto.getId();
 
         switch (method) {
             case "GET":

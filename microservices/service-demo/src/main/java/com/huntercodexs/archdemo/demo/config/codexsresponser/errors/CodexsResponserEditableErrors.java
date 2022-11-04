@@ -1,4 +1,4 @@
-package com.huntercodexs.archdemo.demo.config.response.errors;
+package com.huntercodexs.archdemo.demo.config.codexsresponser.errors;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public enum ResponseErrors {
+public enum CodexsResponserEditableErrors {
 
     SERVICE_ERROR_MISSING_DATA(
             HttpStatus.BAD_REQUEST,

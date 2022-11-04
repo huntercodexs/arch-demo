@@ -20,16 +20,16 @@ import java.util.regex.Pattern;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AddressApplication.class)
 @WebAppConfiguration
-public abstract class UnitAbstractTest {
+public abstract class AbstractUnitaryTests {
 
-    private static final String propFile = "classpath:unit.test.properties";
+    private static final String propFile = "classpath:unit.tests.properties";
     protected final Properties props = loadPropsTest();
 
     public static Properties loadPropsTest() {
         Properties properties = new Properties();
 
         try {
-            File file = ResourceUtils.getFile(UnitAbstractTest.propFile);
+            File file = ResourceUtils.getFile(AbstractUnitaryTests.propFile);
             InputStream in = Files.newInputStream(file.toPath());
             properties.load(in);
         } catch (IOException ioe) {

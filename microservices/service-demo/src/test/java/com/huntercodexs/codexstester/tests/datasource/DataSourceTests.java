@@ -7,7 +7,7 @@ import com.huntercodexs.archdemo.demo.dto.AddressResponseDto;
 import net.minidev.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 
-public class DataSource {
+public class DataSourceTests {
 
     public static final String routerPort = "33001";
     public static final String endpointUri = "/huntercodexs/arch-demo/service-demo/api/address";
