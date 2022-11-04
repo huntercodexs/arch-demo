@@ -197,7 +197,6 @@ public abstract class ExternalRequestTest {
             headers.set("Content-Type", "application/json;charset=UTF-8");
         }
 
-
         return headers;
     }
 

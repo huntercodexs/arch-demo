@@ -17,6 +17,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.ResourceUtils;
@@ -176,981 +178,310 @@ public abstract class InternalRequestTest {
             }
         }
 
+        /*Default Headers*/
+        if (headersDto.getContentType() != null && !headersDto.getContentType().equals("")) {
+            headers.set("Content-Type", headersDto.getContentType());
+        } else {
+            headers.set("Content-Type", "application/json;charset=UTF-8");
+        }
+
         return headers;
     }
 
-    /**
-     * Using Http GET
-     */
-    protected void unauthorizedByHttpGet(String uri, String id) throws Exception {
+    private MvcResult dispatcher(RequestDto requestDto, HeadersDto headersDto, ResultMatcher status, String method) throws Exception {
 
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                MockMvcRequestBuilders
-                        .get(internalUriBaseTest)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", internalAuthorizationBasicInvalid)
-                )
-                .andExpect(status().isUnauthorized())
-                .andReturn();
-    }
-
-    protected void methodNotAllowedByHttpGet(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .get(internalUriBaseTest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isMethodNotAllowed())
-                .andReturn();
-    }
-
-    protected void badRequestByHttpGet(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .get(internalUriBaseTest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isBadRequest())
-                .andReturn();
-    }
-
-    protected void okByHttpGet(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .get(internalUriBaseTest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
-    }
-
-    protected void createdByHttpGet(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .get(internalUriBaseTest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isCreated())
-                .andReturn();
-    }
-
-    protected void acceptedByHttpGet(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .get(internalUriBaseTest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isAccepted())
-                .andReturn();
-    }
-
-    protected void notFoundByHttpGet(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .get(internalUriBaseTest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isNotFound())
-                .andReturn();
-    }
-
-    protected void conflictByHttpGet(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .get(internalUriBaseTest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isConflict())
-                .andReturn();
-    }
-
-    protected void serverErrorByHttpGet(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .get(internalUriBaseTest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isInternalServerError())
-                .andReturn();
-    }
-
-    /**
-     * Using Http POST
-     */
-    protected MvcResult unauthorizedByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = null;
 
         if (!requestDto.getUri().equals("")) internalUriBaseTest = requestDto.getUri();
         if (!requestDto.getId().equals("")) internalUriBaseTest = internalUriBaseTest +"/"+ requestDto.getId();
 
+        switch (method) {
+            case "GET":
+                requestBuilder = MockMvcRequestBuilders.get(internalUriBaseTest);
+                break;
+            case "POST":
+                requestBuilder = MockMvcRequestBuilders.post(internalUriBaseTest);
+                break;
+            case "PUT":
+                requestBuilder = MockMvcRequestBuilders.put(internalUriBaseTest);
+                break;
+            case "DELETE":
+                requestBuilder = MockMvcRequestBuilders.delete(internalUriBaseTest);
+                break;
+            case "PATCH":
+                requestBuilder = MockMvcRequestBuilders.patch(internalUriBaseTest);
+                break;
+            case "HEAD":
+                requestBuilder = MockMvcRequestBuilders.head(internalUriBaseTest);
+                break;
+            case "OPTIONS":
+                requestBuilder = MockMvcRequestBuilders.options(internalUriBaseTest);
+                break;
+            default:
+                throw new RuntimeException("INVALID HTTP METHOD: " + method);
+        }
+
         return mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .post(internalUriBaseTest)
-                                .content(requestDto.getDataRequest())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .headers(getCurrentTestHeaders(requestDto, headersDto))
-                )
-                .andExpect(status().isUnauthorized())
-                .andReturn();
-    }
+                requestBuilder
+                        .content(requestDto.getDataRequest())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .headers(getCurrentTestHeaders(requestDto, headersDto))
+                ).andExpect(status).andReturn();
 
-    protected void methodNotAllowedByHttpPost(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .post(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isMethodNotAllowed())
-                .andReturn();
-    }
-
-    protected void badRequestByHttpPost(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .post(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isBadRequest())
-                .andReturn();
-    }
-
-    protected void okByHttpPost(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .post(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
-    }
-
-    protected void createdByHttpPost(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .post(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isCreated())
-                .andReturn();
-    }
-
-    protected void acceptedByHttpPost(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .post(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isAccepted())
-                .andReturn();
-    }
-
-    protected void notFoundByHttpPost(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .post(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isNotFound())
-                .andReturn();
-    }
-
-    protected void foundByHttpPost(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .post(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isFound())
-                .andReturn();
-    }
-
-    protected void conflictByHttpPost(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .post(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isConflict())
-                .andReturn();
-    }
-
-    protected void serverErrorByHttpPost(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .post(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isInternalServerError())
-                .andReturn();
     }
 
     /**
-     * Using Http PUT
+     * @apiNote Using Http GET
      */
-    protected void unauthorizedByHttpPut(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .put(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasicInvalid)
-                )
-                .andExpect(status().isUnauthorized())
-                .andReturn();
+    protected MvcResult unauthorizedByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isUnauthorized(), "GET");
     }
 
-    protected void methodNotAllowedByHttpPut(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .put(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isMethodNotAllowed())
-                .andReturn();
+    protected MvcResult methodNotAllowedByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), "GET");
     }
 
-    protected void badRequestByHttpPut(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .put(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isBadRequest())
-                .andReturn();
+    protected MvcResult badRequestByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isBadRequest(), "GET");
     }
 
-    protected void okByHttpPut(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .put(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
+    protected MvcResult okByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isOk(), "GET");
     }
 
-    protected void createdByHttpPut(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .put(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isCreated())
-                .andReturn();
+    protected MvcResult createdByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isCreated(), "GET");
     }
 
-    protected void acceptedByHttpPut(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .put(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isAccepted())
-                .andReturn();
+    protected MvcResult acceptedByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isAccepted(), "GET");
     }
 
-    protected void notFoundByHttpPut(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .put(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isNotFound())
-                .andReturn();
+    protected MvcResult notFoundByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isNotFound(), "GET");
     }
 
-    protected void conflictByHttpPut(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .put(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isConflict())
-                .andReturn();
+    protected MvcResult conflictByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isConflict(), "GET");
     }
 
-    protected void serverErrorByHttpPut(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .put(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isInternalServerError())
-                .andReturn();
+    protected MvcResult serverErrorByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isInternalServerError(), "GET");
     }
 
     /**
-     * Using Http DELETE
+     * @apiNote Using Http POST
      */
-    protected void unauthorizedByHttpDelete(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                MockMvcRequestBuilders
-                        .delete(internalUriBaseTest)
-                        .header("Authorization", internalAuthorizationBasicInvalid)
-                )
-                .andExpect(status().isUnauthorized())
-                .andReturn();
+    protected MvcResult unauthorizedByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isUnauthorized(), "POST");
     }
 
-    protected void methodNotAllowedByHttpDelete(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .delete(internalUriBaseTest)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isMethodNotAllowed())
-                .andReturn();
+    protected MvcResult methodNotAllowedByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), "POST");
     }
 
-    protected void badRequestByHttpDelete(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .delete(internalUriBaseTest)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isBadRequest())
-                .andReturn();
+    protected MvcResult badRequestByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isBadRequest(), "POST");
     }
 
-    protected void conflictByHttpDelete(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .delete(internalUriBaseTest)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isConflict())
-                .andReturn();
+    protected MvcResult okByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isOk(), "POST");
     }
 
-    protected void okByHttpDelete(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .delete(internalUriBaseTest)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
+    protected MvcResult createdByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isCreated(), "POST");
     }
 
-    protected void acceptedByHttpDelete(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .delete(internalUriBaseTest)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isAccepted())
-                .andReturn();
+    protected MvcResult acceptedByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isAccepted(), "POST");
     }
 
-    protected void notFoundByHttpDelete(String uri, String id) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .delete(internalUriBaseTest)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isNotFound())
-                .andReturn();
+    protected MvcResult notFoundByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isNotFound(), "POST");
     }
 
-    protected void serverErrorByHttpDelete(String uri, String id) throws Exception {
+    protected MvcResult foundByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isFound(), "POST");
+    }
 
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
+    protected MvcResult conflictByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isConflict(), "POST");
+    }
 
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .delete(internalUriBaseTest)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isInternalServerError())
-                .andReturn();
+    protected MvcResult serverErrorByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isInternalServerError(), "POST");
     }
 
     /**
-     * Using Http PATCH
+     * @apiNote Using Http PUT
      */
-    protected void unauthorizedByHttpPatch(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .patch(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasicInvalid)
-                )
-                .andExpect(status().isUnauthorized())
-                .andReturn();
+    protected MvcResult unauthorizedByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isUnauthorized(), "PUT");
     }
 
-    protected void methodNotAllowedByHttpPatch(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .patch(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isMethodNotAllowed())
-                .andReturn();
+    protected MvcResult methodNotAllowedByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), "PUT");
     }
 
-    protected void badRequestByHttpPatch(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .patch(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isBadRequest())
-                .andReturn();
+    protected MvcResult badRequestByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isBadRequest(), "PUT");
     }
 
-    protected void okByHttpPatch(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .patch(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
+    protected MvcResult okByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isOk(), "PUT");
     }
 
-    protected void acceptedByHttpPatch(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .patch(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isAccepted())
-                .andReturn();
+    protected MvcResult createdByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isCreated(), "PUT");
     }
 
-    protected void notFoundByHttpPatch(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .patch(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isNotFound())
-                .andReturn();
+    protected MvcResult acceptedByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isAccepted(), "PUT");
     }
 
-    protected void conflictByHttpPatch(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .patch(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isConflict())
-                .andReturn();
+    protected MvcResult notFoundByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isNotFound(), "PUT");
     }
 
-    protected void serverErrorByHttpPatch(String uri, String id, String dataRequest) throws Exception {
+    protected MvcResult conflictByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isConflict(), "PUT");
+    }
 
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .patch(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isInternalServerError())
-                .andReturn();
+    protected MvcResult serverErrorByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isInternalServerError(), "PUT");
     }
 
     /**
-     * Using Http HEAD
+     * @apiNote Using Http DELETE
      */
-    protected void unauthorizedByHttpHead(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .head(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasicInvalid)
-                )
-                .andExpect(status().isUnauthorized())
-                .andReturn();
+    protected MvcResult unauthorizedByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isUnauthorized(), "DELETE");
     }
 
-    protected void methodNotAllowedByHttpHead(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .head(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isMethodNotAllowed())
-                .andReturn();
+    protected MvcResult methodNotAllowedByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), "DELETE");
     }
 
-    protected void badRequestByHttpHead(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .head(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isBadRequest())
-                .andReturn();
+    protected MvcResult badRequestByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isBadRequest(), "DELETE");
     }
 
-    protected void okByHttpHead(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .head(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
+    protected MvcResult conflictByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isConflict(), "DELETE");
     }
 
-    protected void notFoundByHttpHead(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .head(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isNotFound())
-                .andReturn();
+    protected MvcResult okByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isOk(), "DELETE");
     }
 
-    protected void conflictByHttpHead(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .head(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isConflict())
-                .andReturn();
+    protected MvcResult acceptedByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isAccepted(), "DELETE");
     }
 
-    protected void serverErrorByHttpHead(String uri, String id, String dataRequest) throws Exception {
+    protected MvcResult notFoundByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isNotFound(), "DELETE");
+    }
 
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .head(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isInternalServerError())
-                .andReturn();
+    protected MvcResult serverErrorByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isInternalServerError(), "DELETE");
     }
 
     /**
-     * Using Http OPTIONS
+     * @apiNote Using Http PATCH
      */
-    protected void unauthorizedByHttpOptions(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .options(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasicInvalid)
-                )
-                .andExpect(status().isUnauthorized())
-                .andReturn();
+    protected MvcResult unauthorizedByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isUnauthorized(), "PATCH");
     }
 
-    protected void methodNotAllowedByHttpOptions(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .options(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isMethodNotAllowed())
-                .andReturn();
+    protected MvcResult methodNotAllowedByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), "PATCH");
     }
 
-    protected void badRequestByHttpOptions(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .options(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isBadRequest())
-                .andReturn();
+    protected MvcResult badRequestByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isBadRequest(), "PATCH");
     }
 
-    protected void okByHttpOptions(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .options(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
+    protected MvcResult okByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isOk(), "PATCH");
     }
 
-    protected void notFoundByHttpOptions(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .options(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isNotFound())
-                .andReturn();
+    protected MvcResult acceptedByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isAccepted(), "PATCH");
     }
 
-    protected void conflictByHttpOptions(String uri, String id, String dataRequest) throws Exception {
-
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .options(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isConflict())
-                .andReturn();
+    protected MvcResult notFoundByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isNotFound(), "PATCH");
     }
 
-    protected void serverErrorByHttpOptions(String uri, String id, String dataRequest) throws Exception {
+    protected MvcResult conflictByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isConflict(), "PATCH");
+    }
 
-        if (!uri.equals("")) internalUriBaseTest = uri;
-        if (!id.equals("")) internalUriBaseTest = internalUriBaseTest +"/"+id;
+    protected MvcResult serverErrorByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isInternalServerError(), "PATCH");
+    }
 
-        mockMvc.perform(
-                        MockMvcRequestBuilders
-                                .options(internalUriBaseTest)
-                                .content(dataRequest)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .header("Authorization", internalAuthorizationBasic)
-                )
-                .andExpect(status().isInternalServerError())
-                .andReturn();
+    /**
+     * @apiNote Using Http HEAD
+     */
+    protected MvcResult unauthorizedByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isUnauthorized(), "HEAD");
+    }
+
+    protected MvcResult methodNotAllowedByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), "HEAD");
+    }
+
+    protected MvcResult badRequestByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isBadRequest(), "HEAD");
+    }
+
+    protected MvcResult okByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isOk(), "HEAD");
+    }
+
+    protected MvcResult notFoundByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isNotFound(), "HEAD");
+    }
+
+    protected MvcResult conflictByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isConflict(), "HEAD");
+    }
+
+    protected MvcResult serverErrorByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isInternalServerError(), "HEAD");
+    }
+
+    /**
+     * @apiNote Using Http OPTIONS
+     */
+    protected MvcResult unauthorizedByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isUnauthorized(), "OPTIONS");
+    }
+
+    protected MvcResult methodNotAllowedByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), "OPTIONS");
+    }
+
+    protected MvcResult badRequestByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isBadRequest(), "OPTIONS");
+    }
+
+    protected MvcResult okByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isOk(), "OPTIONS");
+    }
+
+    protected MvcResult notFoundByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isNotFound(), "OPTIONS");
+    }
+
+    protected MvcResult conflictByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isConflict(), "OPTIONS");
+    }
+
+    protected MvcResult serverErrorByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        return dispatcher(requestDto, headersDto, status().isInternalServerError(), "OPTIONS");
     }
 
 }
