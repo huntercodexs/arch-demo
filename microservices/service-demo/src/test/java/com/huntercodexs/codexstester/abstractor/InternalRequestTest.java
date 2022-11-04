@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AddressApplication.class)
 @WebAppConfiguration
-public abstract class InternalRequestTest {
+public abstract class InternalRequestTest extends CodexsHttpMethod {
 
     protected MockMvc mockMvc;
     private static final String propFile = "classpath:internal.test.properties";
@@ -188,7 +188,7 @@ public abstract class InternalRequestTest {
         return headers;
     }
 
-    private MvcResult dispatcher(RequestDto requestDto, HeadersDto headersDto, ResultMatcher status, String method) throws Exception {
+    private void dispatcher(RequestDto requestDto, HeadersDto headersDto, ResultMatcher status, String method) throws Exception {
 
         MockHttpServletRequestBuilder requestBuilder = null;
 
@@ -197,291 +197,301 @@ public abstract class InternalRequestTest {
 
         switch (method) {
             case "GET":
-                requestBuilder = MockMvcRequestBuilders.get(internalUriBaseTest);
+                requestBuilder = MockMvcRequestBuilders.get(internalUrlBaseTest+internalUriBaseTest);
                 break;
             case "POST":
-                requestBuilder = MockMvcRequestBuilders.post(internalUriBaseTest);
+                requestBuilder = MockMvcRequestBuilders.post(internalUrlBaseTest+internalUriBaseTest);
                 break;
             case "PUT":
-                requestBuilder = MockMvcRequestBuilders.put(internalUriBaseTest);
+                requestBuilder = MockMvcRequestBuilders.put(internalUrlBaseTest+internalUriBaseTest);
                 break;
             case "DELETE":
-                requestBuilder = MockMvcRequestBuilders.delete(internalUriBaseTest);
+                requestBuilder = MockMvcRequestBuilders.delete(internalUrlBaseTest+internalUriBaseTest);
                 break;
             case "PATCH":
-                requestBuilder = MockMvcRequestBuilders.patch(internalUriBaseTest);
+                requestBuilder = MockMvcRequestBuilders.patch(internalUrlBaseTest+internalUriBaseTest);
                 break;
             case "HEAD":
-                requestBuilder = MockMvcRequestBuilders.head(internalUriBaseTest);
+                requestBuilder = MockMvcRequestBuilders.head(internalUrlBaseTest+internalUriBaseTest);
                 break;
             case "OPTIONS":
-                requestBuilder = MockMvcRequestBuilders.options(internalUriBaseTest);
+                requestBuilder = MockMvcRequestBuilders.options(internalUrlBaseTest+internalUriBaseTest);
                 break;
             default:
                 throw new RuntimeException("INVALID HTTP METHOD: " + method);
         }
 
-        return mockMvc.perform(
+        MvcResult result = mockMvc.perform(
                 requestBuilder
                         .content(requestDto.getDataRequest())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .headers(getCurrentTestHeaders(requestDto, headersDto))
-                ).andExpect(status).andReturn();
+        ).andExpect(status).andReturn();
+
+        System.out.println("RESULT[DEBUG]: "+result.getResponse().getContentAsString());
+
+        /*Assert Content as String*/
+        if (requestDto.getExpetecdMessage() != null && !requestDto.getExpetecdMessage().equals("")) {
+            System.out.println("Try assertIntegration: ");
+            System.out.println("> "+requestDto.getExpetecdMessage());
+            System.out.println("> "+result.getResponse().getContentAsString());
+            assertIntegration(requestDto.getExpetecdMessage(), result.getResponse().getContentAsString());
+        }
 
     }
 
     /**
      * @apiNote Using Http GET
      */
-    protected MvcResult unauthorizedByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isUnauthorized(), "GET");
+    protected void unauthorizedByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isUnauthorized(), HTTP_METHOD_GET);
     }
 
-    protected MvcResult methodNotAllowedByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), "GET");
+    protected void methodNotAllowedByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), HTTP_METHOD_GET);
     }
 
-    protected MvcResult badRequestByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isBadRequest(), "GET");
+    protected void badRequestByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isBadRequest(), HTTP_METHOD_GET);
     }
 
-    protected MvcResult okByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isOk(), "GET");
+    protected void okByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isOk(), HTTP_METHOD_GET);
     }
 
-    protected MvcResult createdByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isCreated(), "GET");
+    protected void createdByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isCreated(), HTTP_METHOD_GET);
     }
 
-    protected MvcResult acceptedByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isAccepted(), "GET");
+    protected void acceptedByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isAccepted(), HTTP_METHOD_GET);
     }
 
-    protected MvcResult notFoundByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isNotFound(), "GET");
+    protected void notFoundByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isNotFound(), HTTP_METHOD_GET);
     }
 
-    protected MvcResult conflictByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isConflict(), "GET");
+    protected void conflictByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isConflict(), HTTP_METHOD_GET);
     }
 
-    protected MvcResult serverErrorByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isInternalServerError(), "GET");
+    protected void serverErrorByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isInternalServerError(), HTTP_METHOD_GET);
     }
 
     /**
      * @apiNote Using Http POST
      */
-    protected MvcResult unauthorizedByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isUnauthorized(), "POST");
+    protected void unauthorizedByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isUnauthorized(), HTTP_METHOD_POST);
     }
 
-    protected MvcResult methodNotAllowedByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), "POST");
+    protected void methodNotAllowedByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), HTTP_METHOD_POST);
     }
 
-    protected MvcResult badRequestByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isBadRequest(), "POST");
+    protected void badRequestByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isBadRequest(), HTTP_METHOD_POST);
     }
 
-    protected MvcResult okByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isOk(), "POST");
+    protected void okByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isOk(), HTTP_METHOD_POST);
     }
 
-    protected MvcResult createdByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isCreated(), "POST");
+    protected void createdByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isCreated(), HTTP_METHOD_POST);
     }
 
-    protected MvcResult acceptedByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isAccepted(), "POST");
+    protected void acceptedByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isAccepted(), HTTP_METHOD_POST);
     }
 
-    protected MvcResult notFoundByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isNotFound(), "POST");
+    protected void notFoundByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isNotFound(), HTTP_METHOD_POST);
     }
 
-    protected MvcResult foundByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isFound(), "POST");
+    protected void foundByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isFound(), HTTP_METHOD_POST);
     }
 
-    protected MvcResult conflictByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isConflict(), "POST");
+    protected void conflictByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isConflict(), HTTP_METHOD_POST);
     }
 
-    protected MvcResult serverErrorByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isInternalServerError(), "POST");
+    protected void serverErrorByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isInternalServerError(), HTTP_METHOD_POST);
     }
 
     /**
      * @apiNote Using Http PUT
      */
-    protected MvcResult unauthorizedByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isUnauthorized(), "PUT");
+    protected void unauthorizedByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isUnauthorized(), HTTP_METHOD_PUT);
     }
 
-    protected MvcResult methodNotAllowedByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), "PUT");
+    protected void methodNotAllowedByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), HTTP_METHOD_PUT);
     }
 
-    protected MvcResult badRequestByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isBadRequest(), "PUT");
+    protected void badRequestByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isBadRequest(), HTTP_METHOD_PUT);
     }
 
-    protected MvcResult okByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isOk(), "PUT");
+    protected void okByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isOk(), HTTP_METHOD_PUT);
     }
 
-    protected MvcResult createdByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isCreated(), "PUT");
+    protected void createdByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isCreated(), HTTP_METHOD_PUT);
     }
 
-    protected MvcResult acceptedByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isAccepted(), "PUT");
+    protected void acceptedByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isAccepted(), HTTP_METHOD_PUT);
     }
 
-    protected MvcResult notFoundByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isNotFound(), "PUT");
+    protected void notFoundByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isNotFound(), HTTP_METHOD_PUT);
     }
 
-    protected MvcResult conflictByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isConflict(), "PUT");
+    protected void conflictByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isConflict(), HTTP_METHOD_PUT);
     }
 
-    protected MvcResult serverErrorByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isInternalServerError(), "PUT");
+    protected void serverErrorByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isInternalServerError(), HTTP_METHOD_PUT);
     }
 
     /**
      * @apiNote Using Http DELETE
      */
-    protected MvcResult unauthorizedByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isUnauthorized(), "DELETE");
+    protected void unauthorizedByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isUnauthorized(), HTTP_METHOD_DELETE);
     }
 
-    protected MvcResult methodNotAllowedByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), "DELETE");
+    protected void methodNotAllowedByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), HTTP_METHOD_DELETE);
     }
 
-    protected MvcResult badRequestByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isBadRequest(), "DELETE");
+    protected void badRequestByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isBadRequest(), HTTP_METHOD_DELETE);
     }
 
-    protected MvcResult conflictByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isConflict(), "DELETE");
+    protected void conflictByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isConflict(), HTTP_METHOD_DELETE);
     }
 
-    protected MvcResult okByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isOk(), "DELETE");
+    protected void okByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isOk(), HTTP_METHOD_DELETE);
     }
 
-    protected MvcResult acceptedByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isAccepted(), "DELETE");
+    protected void acceptedByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isAccepted(), HTTP_METHOD_DELETE);
     }
 
-    protected MvcResult notFoundByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isNotFound(), "DELETE");
+    protected void notFoundByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isNotFound(), HTTP_METHOD_DELETE);
     }
 
-    protected MvcResult serverErrorByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isInternalServerError(), "DELETE");
+    protected void serverErrorByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isInternalServerError(), HTTP_METHOD_DELETE);
     }
 
     /**
      * @apiNote Using Http PATCH
      */
-    protected MvcResult unauthorizedByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isUnauthorized(), "PATCH");
+    protected void unauthorizedByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isUnauthorized(), HTTP_METHOD_PATCH);
     }
 
-    protected MvcResult methodNotAllowedByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), "PATCH");
+    protected void methodNotAllowedByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), HTTP_METHOD_PATCH);
     }
 
-    protected MvcResult badRequestByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isBadRequest(), "PATCH");
+    protected void badRequestByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isBadRequest(), HTTP_METHOD_PATCH);
     }
 
-    protected MvcResult okByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isOk(), "PATCH");
+    protected void okByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isOk(), HTTP_METHOD_PATCH);
     }
 
-    protected MvcResult acceptedByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isAccepted(), "PATCH");
+    protected void acceptedByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isAccepted(), HTTP_METHOD_PATCH);
     }
 
-    protected MvcResult notFoundByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isNotFound(), "PATCH");
+    protected void notFoundByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isNotFound(), HTTP_METHOD_PATCH);
     }
 
-    protected MvcResult conflictByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isConflict(), "PATCH");
+    protected void conflictByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isConflict(), HTTP_METHOD_PATCH);
     }
 
-    protected MvcResult serverErrorByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isInternalServerError(), "PATCH");
+    protected void serverErrorByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isInternalServerError(), HTTP_METHOD_PATCH);
     }
 
     /**
      * @apiNote Using Http HEAD
      */
-    protected MvcResult unauthorizedByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isUnauthorized(), "HEAD");
+    protected void unauthorizedByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isUnauthorized(), HTTP_METHOD_HEAD);
     }
 
-    protected MvcResult methodNotAllowedByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), "HEAD");
+    protected void methodNotAllowedByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), HTTP_METHOD_HEAD);
     }
 
-    protected MvcResult badRequestByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isBadRequest(), "HEAD");
+    protected void badRequestByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isBadRequest(), HTTP_METHOD_HEAD);
     }
 
-    protected MvcResult okByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isOk(), "HEAD");
+    protected void okByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isOk(), HTTP_METHOD_HEAD);
     }
 
-    protected MvcResult notFoundByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isNotFound(), "HEAD");
+    protected void notFoundByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isNotFound(), HTTP_METHOD_HEAD);
     }
 
-    protected MvcResult conflictByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isConflict(), "HEAD");
+    protected void conflictByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isConflict(), HTTP_METHOD_HEAD);
     }
 
-    protected MvcResult serverErrorByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isInternalServerError(), "HEAD");
+    protected void serverErrorByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isInternalServerError(), HTTP_METHOD_HEAD);
     }
 
     /**
      * @apiNote Using Http OPTIONS
      */
-    protected MvcResult unauthorizedByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isUnauthorized(), "OPTIONS");
+    protected void unauthorizedByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isUnauthorized(), HTTP_METHOD_OPTIONS);
     }
 
-    protected MvcResult methodNotAllowedByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), "OPTIONS");
+    protected void methodNotAllowedByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isMethodNotAllowed(), HTTP_METHOD_OPTIONS);
     }
 
-    protected MvcResult badRequestByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isBadRequest(), "OPTIONS");
+    protected void badRequestByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isBadRequest(), HTTP_METHOD_OPTIONS);
     }
 
-    protected MvcResult okByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isOk(), "OPTIONS");
+    protected void okByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isOk(), HTTP_METHOD_OPTIONS);
     }
 
-    protected MvcResult notFoundByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isNotFound(), "OPTIONS");
+    protected void notFoundByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isNotFound(), HTTP_METHOD_OPTIONS);
     }
 
-    protected MvcResult conflictByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isConflict(), "OPTIONS");
+    protected void conflictByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isConflict(), HTTP_METHOD_OPTIONS);
     }
 
-    protected MvcResult serverErrorByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        return dispatcher(requestDto, headersDto, status().isInternalServerError(), "OPTIONS");
+    protected void serverErrorByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
+        dispatcher(requestDto, headersDto, status().isInternalServerError(), HTTP_METHOD_OPTIONS);
     }
 
 }

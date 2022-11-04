@@ -1,4 +1,4 @@
-package com.huntercodexs.codexstester.address.unitary;
+package com.huntercodexs.codexstester.tests.unitary;
 
 import com.huntercodexs.archdemo.demo.client.AddressClient;
 import com.huntercodexs.archdemo.demo.config.response.errors.ResponseErrors;
@@ -10,7 +10,7 @@ import com.huntercodexs.archdemo.demo.rules.RulesService;
 import com.huntercodexs.archdemo.demo.service.AddressService;
 import com.huntercodexs.archdemo.demo.service.SyncService;
 import com.huntercodexs.codexstester.abstractor.UnitAbstractTest;
-import com.huntercodexs.codexstester.address.datasource.AddressDataSource;
+import com.huntercodexs.codexstester.tests.datasource.DataSource;
 import com.huntercodexs.codexstester.utils.TestsHelpers;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static com.huntercodexs.archdemo.demo.mapper.AddressResponseMapper.mapperFinalResponseDtoByEntity;
 import static com.huntercodexs.archdemo.demo.mapper.AddressResponseMapper.mapperInitialResponseDto;
 
-public class AddressUnitaryTest extends UnitAbstractTest {
+public class UnitaryTest extends UnitAbstractTest {
 
     @Autowired
     AddressService addressService;
@@ -42,21 +42,21 @@ public class AddressUnitaryTest extends UnitAbstractTest {
 
     @Test
     public void whenMapperFinalResponseDtoTest_FromAddressResponseMapper_AssertExact() {
-        AddressResponseDto addressResponseDto = AddressDataSource.dataSourceMapperFinalResponseDto();
+        AddressResponseDto addressResponseDto = DataSource.dataSourceMapperFinalResponseDto();
         AddressResponseDto result = mapperFinalResponseDtoByEntity(addressResponseDto);
         assertionExact(TestsHelpers.md5(result.toString()), TestsHelpers.md5(new AddressResponseDto().toString()));
     }
 
     @Test
     public void whenMapperFinalResponseDtoByEntityTest_FromAddressResponseMapper_AssertBoolean() {
-        AddressEntity addressEntity = AddressDataSource.dataSourceAddressEntityEmpty();
+        AddressEntity addressEntity = DataSource.dataSourceAddressEntityEmpty();
         mapperFinalResponseDtoByEntity(addressEntity);
         assertionBool(true, true);
     }
 
     @Test
     public void whenRunAddressSyncTest_FromSyncService_AssertExact() {
-        AddressEntity addressEntity = AddressDataSource.dataSourceAddressEntityFill();
+        AddressEntity addressEntity = DataSource.dataSourceAddressEntityFill();
         AddressResponseDto result = syncService.runAddressSync(addressEntity.getCep());
         assertionExact(result.getCep().replaceAll("[^0-9]", ""), addressEntity.getCep());
     }
@@ -93,7 +93,7 @@ public class AddressUnitaryTest extends UnitAbstractTest {
     @Transactional
     public void whenSaveAddressTest_FromSyncService_AssertTrue_Windows() {
         System.out.println(System.getProperty("os.name"));
-        ResponseEntity<AddressResponseDto> dataFake = AddressDataSource.dataSourceAddressEntityResponse();
+        ResponseEntity<AddressResponseDto> dataFake = DataSource.dataSourceAddressEntityResponse();
         syncService.saveAddress(dataFake);
         AddressEntity result = addressRepository.findByCep(dataFake.getBody().getCep());
         assertionExact(result.getCep(), dataFake.getBody().getCep());
@@ -101,7 +101,7 @@ public class AddressUnitaryTest extends UnitAbstractTest {
 
     public void whenSaveAddressTest_FromSyncService_AssertTrue_Linux() {
         System.out.println(System.getProperty("os.name"));
-        ResponseEntity<AddressResponseDto> dataFake = AddressDataSource.dataSourceAddressEntityResponse();
+        ResponseEntity<AddressResponseDto> dataFake = DataSource.dataSourceAddressEntityResponse();
         syncService.saveAddress(dataFake);
         AddressEntity result = addressRepository.findByCep(dataFake.getBody().getCep());
         addressRepository.deleteById(result.getId());

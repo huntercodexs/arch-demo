@@ -33,7 +33,7 @@ import java.util.Properties;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AddressApplication.class)
 @WebAppConfiguration
-public abstract class ExternalRequestTest {
+public abstract class ExternalRequestTest extends CodexsHttpMethod {
 
     protected MockMvc mockMvc;
     protected static final RestTemplate restTemplate = new RestTemplate();
@@ -213,26 +213,26 @@ public abstract class ExternalRequestTest {
             ResponseEntity<Object> response = null;
 
             switch (method) {
-                case "GET":
+                case HTTP_METHOD_GET:
                     response = restTemplate.exchange(url, HttpMethod.GET, httpEntity, Object.class);
                     break;
-                case "POST":
+                case HTTP_METHOD_POST:
                     response = restTemplate.postForEntity(url, httpEntity, Object.class);
                     break;
-                case "DELETE":
+                case HTTP_METHOD_DELETE:
                     response = restTemplate.exchange(url, HttpMethod.DELETE, httpEntity, Object.class);
                     break;
-                case "PUT":
+                case HTTP_METHOD_PUT:
                     response = restTemplate.exchange(url, HttpMethod.PUT, httpEntity, Object.class);
                     break;
-                case "PATCH":
+                case HTTP_METHOD_PATCH:
                     restTemplate.setRequestFactory(httpClientFactory());
                     response = restTemplate.exchange(url, HttpMethod.PATCH, httpEntity, Object.class);
                     break;
-                case "HEAD":
+                case HTTP_METHOD_HEAD:
                     response = restTemplate.exchange(url, HttpMethod.HEAD, httpEntity, Object.class);
                     break;
-                case "OPTIONS":
+                case HTTP_METHOD_OPTIONS:
                     response = restTemplate.exchange(url, HttpMethod.OPTIONS, httpEntity, Object.class);
                     break;
                 default:
@@ -274,48 +274,48 @@ public abstract class ExternalRequestTest {
      * @apiNote Using Http GET with Rest Template
      */
     protected void assertResultFromRequestByHttpGet(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        dispatcher(requestDto, headersDto, "GET");
+        dispatcher(requestDto, headersDto, HTTP_METHOD_GET);
     }
 
     /**
      * @apiNote Using Http POST with Rest Template
      */
     protected void assertResultFromRequestByHttpPost(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        dispatcher(requestDto, headersDto, "POST");
+        dispatcher(requestDto, headersDto, HTTP_METHOD_POST);
     }
 
     /**
      * @apiNote Using Http DELETE with Rest Template
      */
     protected void assertResultFromRequestByHttpDelete(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        dispatcher(requestDto, headersDto, "DELETE");
+        dispatcher(requestDto, headersDto, HTTP_METHOD_DELETE);
     }
 
     /**
      * @apiNote Using Http PUT with Rest Template
      */
     protected void assertResultFromRequestByHttpPut(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        dispatcher(requestDto, headersDto, "PUT");
+        dispatcher(requestDto, headersDto, HTTP_METHOD_PUT);
     }
 
     /**
      * @apiNote Using Http PATCH with Rest Template
      */
     protected void assertResultFromRequestByHttpPatch(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        dispatcher(requestDto, headersDto, "PATCH");
+        dispatcher(requestDto, headersDto, HTTP_METHOD_PATCH);
     }
 
     /**
      * @apiNote Using Http HEAD with Rest Template
      */
     protected void assertResultFromRequestByHttpHead(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        dispatcher(requestDto, headersDto, "HEAD");
+        dispatcher(requestDto, headersDto, HTTP_METHOD_HEAD);
     }
 
     /**
      * @apiNote Using Http OPTIONS with Rest Template
      */
     protected void aassertResultFromRequestByHttpOptions(RequestDto requestDto, HeadersDto headersDto) throws Exception {
-        dispatcher(requestDto, headersDto, "OPTIONS");
+        dispatcher(requestDto, headersDto, HTTP_METHOD_OPTIONS);
     }
 }

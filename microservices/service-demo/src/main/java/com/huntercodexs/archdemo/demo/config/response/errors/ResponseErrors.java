@@ -15,6 +15,11 @@ public enum ResponseErrors {
             100,
             "Missing Data [@{data}], please check the request"),
 
+    SERVICE_ERROR_ACCESS_DENIED(
+            HttpStatus.UNAUTHORIZED,
+            111,
+            "Access Denied"),
+
     SERVICE_ERROR_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             120,
@@ -38,7 +43,7 @@ public enum ResponseErrors {
     SERVICE_ERROR_INTERNAL(
             HttpStatus.INTERNAL_SERVER_ERROR,
             180,
-            "Internal Server Error");;
+            "Internal Server Error");
 
     public HttpStatus statusCode;
     public int errorCode;

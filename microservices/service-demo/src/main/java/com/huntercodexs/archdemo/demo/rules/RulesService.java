@@ -62,6 +62,9 @@ public class RulesService {
             response = restTemplate.postForEntity(rulesUrl, httpEntity, RulesResponseDto.class);
         } catch (RuntimeException re) {
             log.error("Rules Server Contact Failed: " + re.getMessage());
+            if (re.getMessage().equals("401 null")) {
+                throw new ResponseException(ResponseErrors.SERVICE_ERROR_ACCESS_DENIED);
+            }
             throw new ResponseException(ResponseErrors.SERVICE_ERROR_RULES_FAIL);
         }
 

@@ -1,4 +1,4 @@
-package com.huntercodexs.codexstester.address.datasource;
+package com.huntercodexs.codexstester.tests.datasource;
 
 import com.huntercodexs.archdemo.demo.dto.AddressRequestDto;
 import com.huntercodexs.codexstester.abstractor.dto.Oauth2RequestTokenDto;
@@ -7,7 +7,7 @@ import com.huntercodexs.archdemo.demo.dto.AddressResponseDto;
 import net.minidev.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 
-public class AddressDataSource {
+public class DataSource {
 
     public static final String routerPort = "33001";
     public static final String endpointUri = "/huntercodexs/arch-demo/service-demo/api/address";
