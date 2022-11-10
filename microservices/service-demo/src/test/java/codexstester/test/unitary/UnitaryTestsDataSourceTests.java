@@ -1,10 +1,9 @@
 package codexstester.test.unitary;
 
-import codexstester.setup.SetupUnitaryTests;
+import codexstester.setup.SetupUnitaryDataSourceTests;
 import codexstester.setup.datasource.DataSourceTests;
 import codexstester.util.HelperTests;
 import com.huntercodexs.archdemo.demo.client.AddressClient;
-import com.huntercodexs.archdemo.demo.config.codexsresponser.errors.CodexsResponserEditableErrors;
 import com.huntercodexs.archdemo.demo.config.codexsresponser.exception.CodexsResponserException;
 import com.huntercodexs.archdemo.demo.database.model.AddressEntity;
 import com.huntercodexs.archdemo.demo.database.repository.AddressRepository;
@@ -18,10 +17,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.huntercodexs.archdemo.demo.config.codexsresponser.settings.CodexsResponserSettings.codexsResponserExpectedErrors.SERVICE_ERROR_TEST;
 import static com.huntercodexs.archdemo.demo.mapper.AddressResponseMapper.mapperFinalResponseDtoByEntity;
 import static com.huntercodexs.archdemo.demo.mapper.AddressResponseMapper.mapperInitialResponseDto;
 
-public class UnitaryTestsTests extends SetupUnitaryTests {
+public class UnitaryTestsDataSourceTests extends SetupUnitaryDataSourceTests {
 
     @Autowired
     AddressService addressService;
@@ -120,9 +120,9 @@ public class UnitaryTestsTests extends SetupUnitaryTests {
     @Test
     public void whenExceptionHandlerTest_FromResponseExceptionHandler_AssertExact() {
         try {
-            throw new CodexsResponserException(CodexsResponserEditableErrors.SERVICE_ERROR_TEST);
+            throw new CodexsResponserException(SERVICE_ERROR_TEST);
         } catch (Exception ex) {
-            codexsTesterAssertExact(ex.getMessage(), CodexsResponserEditableErrors.SERVICE_ERROR_TEST.getMessage());
+            codexsTesterAssertExact(ex.getMessage(), SERVICE_ERROR_TEST.getMessage());
         }
     }
 

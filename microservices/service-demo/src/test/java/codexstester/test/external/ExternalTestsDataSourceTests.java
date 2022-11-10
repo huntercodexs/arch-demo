@@ -4,17 +4,49 @@ import codexstester.abstractor.dto.HeadersDto;
 import codexstester.abstractor.dto.Oauth2RequestTokenDto;
 import codexstester.abstractor.dto.Oauth2ResponseTokenDto;
 import codexstester.abstractor.dto.RequestDto;
-import codexstester.setup.SetupExternalTests;
+import codexstester.setup.SetupExternalDataSourceTests;
 import codexstester.setup.datasource.DataSourceTests;
 import net.minidev.json.JSONObject;
 import org.junit.Test;
 import org.springframework.http.ResponseEntity;
 
-public class ExternalTestsTests extends SetupExternalTests {
+import static codexstester.abstractor.SecurityTests.codexsTesterSecurityOAuth2Token;
+
+public class ExternalTestsDataSourceTests extends SetupExternalDataSourceTests {
+
+    /**
+     * DataSourceTests Helpers
+     * THIS TESTS CAN BE REMOVED
+     * */
+
+    @Test
+    public void test1xx() throws Exception {
+        isOk1xxExternalTest();
+    }
+
+    @Test
+    public void test2xx() throws Exception {
+        isOk2xxExternalTest();
+    }
+
+    @Test
+    public void test3xx() throws Exception {
+        isOk3xxExternalTest();
+    }
+
+    @Test
+    public void test4xx() throws Exception {
+        isOk4xxExternalTest();
+    }
+
+    @Test
+    public void test5xx() throws Exception {
+        isOk5xxExternalTest();
+    }
 
     @Test
     public void whenInvalidAccessCodeRequest_WithOAuth2_RetrieveUnauthorized_StatusCode401_ByHttpMethodPOST() throws Exception {
-        Oauth2RequestTokenDto oauth2RequestTokenDto = DataSourceTests.dataSourceOAuth2Token();
+        Oauth2RequestTokenDto oauth2RequestTokenDto = codexsTesterSecurityOAuth2Token();
         ResponseEntity<Oauth2ResponseTokenDto> response = codexsTesterExternalOAuth2GetToken(oauth2RequestTokenDto);
         JSONObject dataRequest = DataSourceTests.dataSourceAddressRequest();
 
@@ -60,7 +92,7 @@ public class ExternalTestsTests extends SetupExternalTests {
      * */
     @Test
     public void whenInvalidRulesCodeRequest_WithOAuth2_RetrieveBadRequest_StatusCode400_ByHttpMethodPOST() throws Exception {
-        Oauth2RequestTokenDto oauth2RequestTokenDto = DataSourceTests.dataSourceOAuth2Token();
+        Oauth2RequestTokenDto oauth2RequestTokenDto = codexsTesterSecurityOAuth2Token();
         ResponseEntity<Oauth2ResponseTokenDto> response = codexsTesterExternalOAuth2GetToken(oauth2RequestTokenDto);
         JSONObject dataRequest = DataSourceTests.dataSourceAddressRequest();
         dataRequest.put("rulesCode", "XXX123456");/*Invalid Rules-Code*/
@@ -86,7 +118,7 @@ public class ExternalTestsTests extends SetupExternalTests {
      * */
     @Test
     public void whenServiceIsDown_WithOAuth2_RetrieveServerError_StatusCode500_ByHttpMethodPOST() throws Exception {
-        Oauth2RequestTokenDto oauth2RequestTokenDto = DataSourceTests.dataSourceOAuth2Token();
+        Oauth2RequestTokenDto oauth2RequestTokenDto = codexsTesterSecurityOAuth2Token();
         ResponseEntity<Oauth2ResponseTokenDto> response = codexsTesterExternalOAuth2GetToken(oauth2RequestTokenDto);
         JSONObject dataRequest = DataSourceTests.dataSourceAddressRequest();
 
@@ -108,7 +140,7 @@ public class ExternalTestsTests extends SetupExternalTests {
 
     @Test
     public void whenCorrectRequestSync_WithOAuth2_RetrieveOk_StatusCode200_ByHttpMethodPOST() throws Exception {
-        Oauth2RequestTokenDto oauth2RequestTokenDto = DataSourceTests.dataSourceOAuth2Token();
+        Oauth2RequestTokenDto oauth2RequestTokenDto = codexsTesterSecurityOAuth2Token();
         ResponseEntity<Oauth2ResponseTokenDto> response = codexsTesterExternalOAuth2GetToken(oauth2RequestTokenDto);
         JSONObject dataRequest = DataSourceTests.dataSourceAddressRequest();
 
@@ -130,7 +162,7 @@ public class ExternalTestsTests extends SetupExternalTests {
 
     @Test
     public void whenDataNotFoundSync_WithOAuth2_RetrieveNotFound_StatusCode404_ByHttpMethodPOST() throws Exception {
-        Oauth2RequestTokenDto oauth2RequestTokenDto = DataSourceTests.dataSourceOAuth2Token();
+        Oauth2RequestTokenDto oauth2RequestTokenDto = codexsTesterSecurityOAuth2Token();
         ResponseEntity<Oauth2ResponseTokenDto> response = codexsTesterExternalOAuth2GetToken(oauth2RequestTokenDto);
         JSONObject dataRequest = DataSourceTests.dataSourceAddressRequest();
         dataRequest.put("postalCode", "62090002");/*Postal Code Not Found*/
@@ -153,7 +185,7 @@ public class ExternalTestsTests extends SetupExternalTests {
 
     @Test
     public void whenAcceptedRequestAsync_WithOAuth2_RetrieveAccepted_StatusCode202_ByHttpMethodPOST() throws Exception {
-        Oauth2RequestTokenDto oauth2RequestTokenDto = DataSourceTests.dataSourceOAuth2Token();
+        Oauth2RequestTokenDto oauth2RequestTokenDto = codexsTesterSecurityOAuth2Token();
         ResponseEntity<Oauth2ResponseTokenDto> response = codexsTesterExternalOAuth2GetToken(oauth2RequestTokenDto);
         JSONObject dataRequest = DataSourceTests.dataSourceAddressRequest();
         dataRequest.put("webhook", "http://localhost:33001/huntercodexs/webhook/receptor-fake");/*Async Mode*/
@@ -176,7 +208,7 @@ public class ExternalTestsTests extends SetupExternalTests {
 
     @Test
     public void whenDataNotFoundAsync_WithOAuth2_RetrieveNotFound_StatusCode202_ByHttpMethodPOST() throws Exception {
-        Oauth2RequestTokenDto oauth2RequestTokenDto = DataSourceTests.dataSourceOAuth2Token();
+        Oauth2RequestTokenDto oauth2RequestTokenDto = codexsTesterSecurityOAuth2Token();
         ResponseEntity<Oauth2ResponseTokenDto> response = codexsTesterExternalOAuth2GetToken(oauth2RequestTokenDto);
         JSONObject dataRequest = DataSourceTests.dataSourceAddressRequest();
         dataRequest.put("postalCode", "62090002");/*Postal Code Not Found*/

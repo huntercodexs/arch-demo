@@ -1,22 +1,22 @@
 package com.huntercodexs.archdemo.demo.config.codexsresponser.handler;
 
-import com.huntercodexs.archdemo.demo.config.codexsresponser.errors.CodexsResponserEditableErrors;
-import com.huntercodexs.archdemo.demo.config.codexsresponser.exception.CodexsResponserException;
 import com.huntercodexs.archdemo.demo.config.codexsresponser.dto.CodexsResponserDto;
+import com.huntercodexs.archdemo.demo.config.codexsresponser.exception.CodexsResponserException;
+import com.huntercodexs.archdemo.demo.config.codexsresponser.settings.CodexsResponserSettings;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
-public class CodexsResponserHandler extends ResponseEntityExceptionHandler {
+public class CodexsResponserRequestHandler extends CodexsResponserSettings {
 
     @ExceptionHandler
-    protected ResponseEntity<Object> handler(RuntimeException ex, WebRequest request) {
+    protected ResponseEntity<Object> handlerException(RuntimeException ex, WebRequest request) {
 
         CodexsResponserDto codexsResponserDto = new CodexsResponserDto();
 
@@ -36,7 +36,8 @@ public class CodexsResponserHandler extends ResponseEntityExceptionHandler {
 
         }
 
-        codexsResponserDto.setMessage("Unknown error");
+        codexsResponserDto.setErrorCode(unknownErrorCode);
+        codexsResponserDto.setMessage(unknownErrorMessage);
 
         return handleExceptionInternal(
                 ex,
@@ -48,17 +49,37 @@ public class CodexsResponserHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
+    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex,
+            HttpHeaders headers,
+            HttpStatus status,
+            WebRequest request
+    ) {
+
+        CodexsResponserDto codexsResponserDto = new CodexsResponserDto();
+        codexsResponserDto.setErrorCode(405);
+        codexsResponserDto.setMessage(ex.getMessage());
+
+        return handleExceptionInternal(
+                ex,
+                codexsResponserDto,
+                new HttpHeaders(),
+                HttpStatus.METHOD_NOT_ALLOWED,
+                request
+        );
+    }
+
+    @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             HttpHeaders headers,
             HttpStatus status,
             WebRequest request
     ) {
-        CodexsResponserDto codexsResponserDto = new CodexsResponserDto();
-        codexsResponserDto.setErrorCode(CodexsResponserEditableErrors.SERVICE_ERROR_MISSING_DATA.getErrorCode());
-        codexsResponserDto.setMessage(getCauseError(ex));
 
-        System.out.println("METHOD ARGUMENT VALID RUNNING: " + codexsResponserDto);
+        CodexsResponserDto codexsResponserDto = new CodexsResponserDto();
+        codexsResponserDto.setErrorCode(409);
+        codexsResponserDto.setMessage(getCauseArgumentError(ex));
 
         return handleExceptionInternal(
                 ex,
@@ -70,8 +91,8 @@ public class CodexsResponserHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    private String getCauseError(MethodArgumentNotValidException ex) {
-        return CodexsResponserEditableErrors.SERVICE_ERROR_MISSING_DATA.getMessage().replace("@{data}", ex.getMessage()
+    private String getCauseArgumentError(MethodArgumentNotValidException ex) {
+        return missingDataMessage.replace(replacementString, ex.getMessage()
                 .split("; default message")[1].replaceAll("]|\\[| ", ""));
     }
 }

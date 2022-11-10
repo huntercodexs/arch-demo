@@ -1,6 +1,6 @@
 package com.huntercodexs.archdemo.demo.config.codexsresponser.exception;
 
-import com.huntercodexs.archdemo.demo.config.codexsresponser.errors.CodexsResponserEditableErrors;
+import com.huntercodexs.archdemo.demo.config.codexsresponser.settings.CodexsResponserSettings;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
@@ -10,9 +10,20 @@ public class CodexsResponserException extends RuntimeException {
     public int errorCode;
     public String message;
 
-    public CodexsResponserException(CodexsResponserEditableErrors codexsResponserEditableErrors) {
-        this.httpStatus = codexsResponserEditableErrors.getStatusCode();
-        this.errorCode = codexsResponserEditableErrors.getErrorCode();
-        this.message = codexsResponserEditableErrors.getMessage();
+    public CodexsResponserException(
+            CodexsResponserSettings.codexsResponserExpectedErrors codexsResponserExpectedErrors
+    ) {
+        this.httpStatus = codexsResponserExpectedErrors.getStatusCode();
+        this.errorCode = codexsResponserExpectedErrors.getErrorCode();
+        this.message = codexsResponserExpectedErrors.getMessage();
+    }
+
+    public CodexsResponserException(
+            CodexsResponserSettings.codexsResponserExpectedErrors codexsResponserExpectedErrors,
+            String message
+    ) {
+        this.httpStatus = codexsResponserExpectedErrors.getStatusCode();
+        this.errorCode = codexsResponserExpectedErrors.getErrorCode();
+        this.message = message;
     }
 }

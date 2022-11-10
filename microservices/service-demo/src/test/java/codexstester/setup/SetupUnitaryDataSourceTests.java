@@ -10,6 +10,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @SpringBootTest(classes = AddressApplication.class) /*INSERT HERE THEM MAIN CLASS FROM PROJECT (EXAMPLE: ApplicationName.class)*/
-public class SetupUnitaryTests extends AbstractTestsUnitaryTests {
+public class SetupUnitaryDataSourceTests extends AbstractTestsUnitaryTests {
 
 }

@@ -16,7 +16,7 @@ public abstract class PropertiesLoader extends AssertionTests {
         Properties properties = new Properties();
 
         try {
-            File file = ResourceUtils.getFile("classpath:external.tests.properties");
+            File file = ResourceUtils.getFile("classpath:"+externalPropertiesFilepath);
             InputStream in = Files.newInputStream(file.toPath());
             properties.load(in);
         } catch (IOException ioe) {
@@ -32,7 +32,7 @@ public abstract class PropertiesLoader extends AssertionTests {
         Properties properties = new Properties();
 
         try {
-            File file = ResourceUtils.getFile("classpath:internal.tests.properties");
+            File file = ResourceUtils.getFile("classpath:"+internalPropertiesFilepath);
             InputStream in = Files.newInputStream(file.toPath());
             properties.load(in);
         } catch (IOException ioe) {
@@ -48,7 +48,7 @@ public abstract class PropertiesLoader extends AssertionTests {
         Properties properties = new Properties();
 
         try {
-            File file = ResourceUtils.getFile("classpath:unitary.tests.properties");
+            File file = ResourceUtils.getFile("classpath:"+unitaryPropertiesFilepath);
             InputStream in = Files.newInputStream(file.toPath());
             properties.load(in);
         } catch (IOException ioe) {

@@ -1,12 +1,13 @@
 package codexstester.abstractor;
 
+import codexstester.setup.datasource.DataSourcePropertiesTests;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class AssertionTests {
+public abstract class AssertionTests extends DataSourcePropertiesTests {
 
     protected void codexsTesterAssertExact(String ref, String text) {
         if (text.equals(ref)) {

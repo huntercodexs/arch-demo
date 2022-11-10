@@ -11,7 +11,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @SpringBootTest(classes = AddressApplication.class) /*INSERT HERE THEM MAIN CLASS FROM PROJECT (EXAMPLE: ApplicationName.class)*/
-public class SetupInternalTests extends InternalRequest1XxTestsTests {
+public class SetupInternalDataSourceTests extends InternalRequest1XxTestsTests {
 
     @Override
     @Before
