@@ -23,10 +23,10 @@ public abstract class CodexsResponserSettings extends ResponseEntityExceptionHan
     @AllArgsConstructor
     public enum codexsResponserExpectedErrors {
 
-        SERVICE_OK(
-                HttpStatus.OK,
-                1,
-                "Dat found successfull"),
+        SERVICE_ERROR_ADDRESS_CLIENT(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                10,
+                "[EXCEPTION] Occours an error an AddressClient: "),
 
         SERVICE_ERROR_ACCESS_DENIED(
                 HttpStatus.UNAUTHORIZED,

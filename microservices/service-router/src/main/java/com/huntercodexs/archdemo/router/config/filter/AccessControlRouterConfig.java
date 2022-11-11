@@ -96,7 +96,7 @@ public class AccessControlRouterConfig extends ZuulFilter {
         System.out.println("=========================================================");
 
         if (auth == null) {
-            JSONObject response = setErrorResponse("invalid access code");
+            JSONObject response = setErrorResponse("invalid access code " + accessCode);
 
             /*not forwarding to microservices*/
             ctx.setSendZuulResponse(false);
@@ -118,7 +118,7 @@ public class AccessControlRouterConfig extends ZuulFilter {
             boolean validToken = checkToken(token, uriCheckToken, auth.getBasicAuth(), body, accessCode);
 
             if (!validToken) {
-                JSONObject response = setErrorResponse("invalid access token");
+                JSONObject response = setErrorResponse("invalid access token " + token);
 
                 /*not forwarding to microservices*/
                 ctx.setSendZuulResponse(false);

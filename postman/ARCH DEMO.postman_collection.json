@@ -49,17 +49,22 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:?????/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/token",
+							"raw": "http://localhost:32943/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/token",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "",
-							"query": [
-								{
-									"key": "????/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/token",
-									"value": null
-								}
+							"port": "32943",
+							"path": [
+								"huntercodexs",
+								"arch-demo",
+								"service-authorizator",
+								"api",
+								"rest",
+								"oauth",
+								"v1",
+								"oauth",
+								"token"
 							]
 						}
 					},
@@ -84,23 +89,28 @@
 							"urlencoded": [
 								{
 									"key": "token",
-									"value": "b3bb1ab6-f646-4a99-9e73-0b771b4498fb",
+									"value": "ca976420-c93f-4015-b653-939ddc7b8011",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "http://localhost:?????/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/check_token",
+							"raw": "http://localhost:32943/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/check_token",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "",
-							"query": [
-								{
-									"key": "????/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/check_token",
-									"value": null
-								}
+							"port": "32943",
+							"path": [
+								"huntercodexs",
+								"arch-demo",
+								"service-authorizator",
+								"api",
+								"rest",
+								"oauth",
+								"v1",
+								"oauth",
+								"check_token"
 							]
 						}
 					},
@@ -326,7 +336,7 @@
 								},
 								{
 									"key": "accessToken",
-									"value": "906334ee-b40f-4594-a1c7-a4a5f429436f",
+									"value": "b6bb7ede-ef15-4746-a9d0-a8dd2c289160",
 									"type": "string"
 								},
 								{
@@ -381,7 +391,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"rulesCode\": \"XYZ12345\",\n    \"postalCode\": \"12090002\",\n    \"webhook\": \"\"\n}",
+							"raw": "{\n    \"rulesCode\": \"XYZ12345\",\n    \"postalCode\": \"192090002\",\n    \"webhook\": \"\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

@@ -1,5 +1,7 @@
 package com.huntercodexs.archdemo.demo.client;
 
+import com.huntercodexs.archdemo.demo.config.codexsresponser.exception.CodexsResponserException;
+import com.huntercodexs.archdemo.demo.config.codexsresponser.settings.CodexsResponserSettings;
 import com.huntercodexs.archdemo.demo.dto.AddressResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -27,7 +29,7 @@ public class AddressClient {
             return restTemplate.exchange(urlAddressSearch, HttpMethod.GET, httpEntity, AddressResponseDto.class);
         } catch (RuntimeException re) {
             System.out.println("[EXCEPTION] " + re.getMessage());
-            return null;
+            throw new CodexsResponserException(CodexsResponserSettings.codexsResponserExpectedErrors.SERVICE_ERROR_ADDRESS_CLIENT, re.getMessage());
         }
     }
 

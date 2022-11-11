@@ -1,6 +1,5 @@
 package com.huntercodexs.archdemo.demo.rules;
 
-import com.huntercodexs.archdemo.demo.config.codexsresponser.errors.CodexsResponserEditableErrors;
 import com.huntercodexs.archdemo.demo.config.codexsresponser.exception.CodexsResponserException;
 import com.huntercodexs.archdemo.demo.dto.RulesRequestDto;
 import com.huntercodexs.archdemo.demo.dto.RulesResponseDto;
@@ -18,6 +17,8 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
+
+import static com.huntercodexs.archdemo.demo.config.codexsresponser.settings.CodexsResponserSettings.codexsResponserExpectedErrors.*;
 
 @RefreshScope
 @Service
@@ -63,14 +64,14 @@ public class RulesService {
         } catch (RuntimeException re) {
             log.error("Rules Server Contact Failed: " + re.getMessage());
             if (re.getMessage().equals("401 null")) {
-                throw new CodexsResponserException(CodexsResponserEditableErrors.SERVICE_ERROR_ACCESS_DENIED);
+                throw new CodexsResponserException(SERVICE_ERROR_ACCESS_DENIED);
             }
-            throw new CodexsResponserException(CodexsResponserEditableErrors.SERVICE_ERROR_RULES_FAIL);
+            throw new CodexsResponserException(SERVICE_ERROR_RULES_FAIL);
         }
 
         if (!Objects.requireNonNull(response.getBody()).getStatus()) {
             log.error("Invalid Rules: " + response.getBody().getMessage());
-            throw new CodexsResponserException(CodexsResponserEditableErrors.SERVICE_ERROR_RULES_NOK);
+            throw new CodexsResponserException(SERVICE_ERROR_RULES_NOK);
         }
 
     }

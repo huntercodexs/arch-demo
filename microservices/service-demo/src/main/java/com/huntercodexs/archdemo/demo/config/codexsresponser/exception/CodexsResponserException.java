@@ -24,6 +24,6 @@ public class CodexsResponserException extends RuntimeException {
     ) {
         this.httpStatus = codexsResponserExpectedErrors.getStatusCode();
         this.errorCode = codexsResponserExpectedErrors.getErrorCode();
-        this.message = message;
+        this.message = codexsResponserExpectedErrors.getMessage() + message;
     }
 }
