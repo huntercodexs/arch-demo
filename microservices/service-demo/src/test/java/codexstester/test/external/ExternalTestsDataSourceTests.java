@@ -88,7 +88,7 @@ public class ExternalTestsDataSourceTests extends SetupExternalDataSourceTests {
     }
 
     /**
-     * @apiNote The SERVICE-DEMO should be running
+     * @implNote The SERVICE-DEMO should be running
      * */
     @Test
     public void whenInvalidRulesCodeRequest_WithOAuth2_RetrieveBadRequest_StatusCode400_ByHttpMethodPOST() throws Exception {
@@ -114,7 +114,7 @@ public class ExternalTestsDataSourceTests extends SetupExternalDataSourceTests {
     }
 
     /**
-     * @apiNote The SERVICE-DEMO should be off
+     * @implNote The SERVICE-DEMO should be off
      * */
     @Test
     public void whenServiceIsDown_WithOAuth2_RetrieveServerError_StatusCode500_ByHttpMethodPOST() throws Exception {

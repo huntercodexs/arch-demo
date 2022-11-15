@@ -122,27 +122,6 @@ public class InternalTestsDataSourceTests extends SetupInternalDataSourceTests {
     }
 
     @Test
-    public void whenRequestToAddressSearchUsingInvalidPostalCodeTest_Retrieve_400() throws Exception {
-        Oauth2RequestTokenDto oauth2RequestTokenDto = codexsTesterSecurityOAuth2Token();
-        ResponseEntity<Oauth2ResponseTokenDto> response = codexsTesterInternalOAuth2GetToken(oauth2RequestTokenDto);
-        JSONObject dataRequest = dataSourceAddressRequest();
-        dataRequest.put("postalCode", "");/*Postal Code Not Exists*/
-
-        HeadersDto headersDto = new HeadersDto();
-        headersDto.setAuthorizationBearer(response.getBody().getAccess_token());
-        headersDto.setContentType("application/json;charset=UTF-8");
-        headersDto.setHttpMethod(HTTP_METHOD_POST);
-
-        RequestDto requestDto = new RequestDto();
-        requestDto.setUri(internalProp.getProperty("internal.tests.base-uri"));
-        requestDto.setId("");
-        requestDto.setDataRequest(dataRequest.toString());
-        requestDto.setExpectedMessage("{\"errorCode\":100,\"message\":\"Missing Data [postalCode], please check the request\"}");
-
-        codexsTesterInternal_StatusCode400_RetrieveBadRequest(headersDto, requestDto);
-    }
-
-    @Test
     public void whenRequestToAddressSearchUsingCorrectPostalCodeSync_RetrieveOK_200() throws Exception {
         Oauth2RequestTokenDto oauth2RequestTokenDto = codexsTesterSecurityOAuth2Token();
         ResponseEntity<Oauth2ResponseTokenDto> response = codexsTesterInternalOAuth2GetToken(oauth2RequestTokenDto);

@@ -71,7 +71,7 @@ public class UnitaryTestsDataSourceTests extends SetupUnitaryDataSourceTests {
 
     @Test
     public void whenRunAddressSyncUsingInvalidCepTest_FromSyncService_AssertText() {
-        String cepTest = "930706800";
+        String cepTest = "90706800";
         try {
             AddressResponseDto result = syncService.runAddressSync(cepTest);
         } catch (Exception ex) {
@@ -127,7 +127,7 @@ public class UnitaryTestsDataSourceTests extends SetupUnitaryDataSourceTests {
     }
 
     /**
-     * @apiNote Before run this test check if Server Rules is down
+     * @implNote Before run this test check if Server Rules is down
      * */
     @Test
     public void whenRunRulesServerButItIsDownTest_AssertText() throws Exception {
@@ -135,7 +135,7 @@ public class UnitaryTestsDataSourceTests extends SetupUnitaryDataSourceTests {
             rulesService.isRulesValid("XYZ-123", "SERVICE-NAME-TEST");
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
-            codexsTesterAssertText("Access Denied", ex.getMessage());
+            codexsTesterAssertText("Rules Server Contact Failed", ex.getMessage());
         }
     }
 
