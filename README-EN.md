@@ -201,6 +201,14 @@ of the ARCH-DEMO micro-services oriented environment.
 
 ![img.png](midias/Compact.png)
 
+> Router Details
+
+The sequence diagram below illustrates how the REST request router service works in order to verify that the services
+are actually available even before forwarding the request to its destination. The Check Service Status step is
+automatically executed in the SERVICE-ROUTER when a request arrives at it, being easy to understand or
+understanding its operation through analysis of the source code.
+
+![img.png](midias/Sequence-Diragram-Router-Details.png)
 
 # Sequence Diagram
 

@@ -187,7 +187,7 @@ devidamente aplicadas.
 
 A seguir temos um detalhamento mais profundo do ambiente, tendo uma visão mais ampla de como estão organizados os 
 serviços e operações, quais são as entidades (models) de cada serviço e uma representação simbólica do banco de dados. 
-Podemos ver que cada serviço esta separado por sua função espeficica e possui uma base de dados propria, assim como 
+É possível ver que cada serviço está separado por sua função espeficica e possui uma base de dados propria, assim como 
 recursos externos ou adjacentes referentes a uma unica unidade de trabalho. 
 
 > Details
@@ -201,6 +201,14 @@ do ambiente orientado a micro-serviços ARCH-DEMO.
 
 ![img.png](midias/Compact.png)
 
+> Router Details
+
+O diagrama de sequência abaixo ilustra como o serviço roteador de requisições REST atua de modo a verificar se os serviços 
+estão realmente disponíveis antes mesmo de encaminhar a requisição para seu destino. A etapa Check Service Status é 
+automaticamente executada no SERVICE-ROUTER quando uma requisição chega até ele, sendo de facil entendimento ou 
+compreensão seu funcionamento mediante, análise do código-fonte.
+
+![img.png](midias/Sequence-Diragram-Router-Details.png)
 
 # Diagrama de Sequencia
 
@@ -353,7 +361,6 @@ que as regras de negocio sejam validadas corretamente.
 > SERVICE-DEMO
 
 Service de exemplo para consultar endereços via Correios com um CEP qualquer
-
 
 # TODO
 
