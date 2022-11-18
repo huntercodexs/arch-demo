@@ -210,6 +210,108 @@ compreensão seu funcionamento mediante, análise do código-fonte.
 
 ![img.png](midias/Sequence-Diragram-Router-Details.png)
 
+Essa verificação ser "service status" precisa ser adicionada em todos os micro serviços que fazem parte do ambiente de 
+trabalho da plataforma, nesse caso ARCH-DEMO ou ARCH-PRO ou ainda CODEXS-ARCH. Esse procedimento é feito incluindo 
+em cada micro serviço um controller para receber e responder a requisições REST devidamente autorizadas por meio da 
+autenticação básica "BASIC AUTH".
+
+Para configurar um novo serviço no ambiente siga as instruções abaixo:
+
+- Crie um novo "package", exemplo "archdemo", dentro de um "package" já existente, exemplo "config", conforme ilustrado abaixo:
+
+![img.png](midias/Service-Status.png)
+
+- Crie os arquivos AliveController.java e AliveService.java dentro do "package" criado anteriormente, veja os exemplos 
+abaixo para criar esses arquivos:
+
+> NOTA: Não altere a lógica dos arquivos, apenas configure as rotas e os dados a serem utilizados
+
+AliveController.java
+<pre>
+ 1 package com.huntercodexs.archdemo.demo.config.archdemo;
+ 2 
+ 3 import lombok.extern.slf4j.Slf4j;
+ 4 import org.springframework.beans.factory.annotation.Autowired;
+ 5 import org.springframework.web.bind.annotation.*;
+ 6 
+ 7 import javax.servlet.http.HttpServletRequest;
+ 8 
+ 9 @Slf4j
+10 @RestController
+11 @CrossOrigin(origins = "*")
+12 @RequestMapping("${api.prefix}")
+13 public class AliveController {
+14
+15     @Autowired
+16     AliveService aliveService;
+17 
+18     @GetMapping(path = "/address/arch-demo-status")
+19     @ResponseBody
+20     public String alive(HttpServletRequest request) {
+21         return aliveService.alive(request);
+22     }
+23 
+24 }
+</pre>
+
+Na linha 18 do código acima use a seguinte configuração para um correto funcionamento: 
+/${service-endpoint}/arch-demo-status, pois esse endpoint será chamado pelo SERVICE-ROUTER durante uma requisição REST, 
+por exemplo, a requisição abaixo:
+
+<pre>
+http://localhost:33001/huntercodexs/arch-demo/service-demo/api/address
+</pre>
+
+espera ter no serviço chamado "Address" o seguinte endpoint
+
+<pre>
+http://localhost:33001/huntercodexs/arch-demo/service-demo/api/address/arch-demo/status
+</pre>
+
+AliveService.java
+<pre>
+ 1 package com.huntercodexs.archdemo.demo.config.archdemo;
+ 2 
+ 3 import lombok.extern.slf4j.Slf4j;
+ 4 import org.springframework.beans.factory.annotation.Value;
+ 5 import org.springframework.stereotype.Service;
+ 6 
+ 7 import javax.servlet.http.HttpServletRequest;
+ 8 import java.util.Base64;
+ 9 
+10 @Slf4j
+11 @Service
+12 public class AliveService {
+13 
+14     @Value("${eureka.security.login}")
+15     String basicAuthService;
+16 
+17     public String alive(HttpServletRequest request) {
+18         String basicAuthRequest = new String(Base64.getDecoder().decode(
+19                 request.getHeader("Authorization").replaceFirst("Basic ", "")));
+20         if (basicAuthRequest.equals(basicAuthService)) {
+21             return "alive";
+22         }
+23         return null;
+24     }
+25 
+26 }
+</pre>
+
+No código acima é preciso ficar atento apenas na linha 14, onde é configurado o valor para realizar autenticação do tipo 
+"BASIC AUTH", por exemplo:
+
+<pre>
+eureka.security.login=arch-demo:1234567890-1111-2222-3411111-000001
+</pre>
+
+> NOTA: Esse valor é o mesmo utilizado para registrar a aplicação ou micro serviço no SERVICE-DISCOVERY (Eureka), por 
+> isso não altere ele de modo algum
+
+Dessa forma sempre que o SERVICE-ROUTER receber uma requisição para rotear, ele primeiro ira verificar se o serviço 
+esta disponível através de uma chamada REST, enviando na HEADER da requisição o valor de "eureka.security.login" para 
+realizar a autenticação basica: YXJjaC1kZW1vOjEyMzQ1Njc4OTAtMTExMS0yMjIyLTM0MTExMTEtMDAwMDAx.
+
 # Diagrama de Sequencia
 
 O diagrama de sequência abaixo mostra um fluxo completo de requisição feita pelo operador com a inteção em consumir o
@@ -290,7 +392,7 @@ Veja que existe uma rede interna limitada pela subnet 10.0.0.0/16 onde os seus i
 mas não podem ser acessados de fora dessa rede senão for pelo Nginx. Note ainda que é possível personalizar a url de entrada 
 no Nginx para com o ROUTER, por exemplo:
 
-- Nginx
+- NGINX
 <pre>
 Request Token
 http://localhost:33001/nginx/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/token

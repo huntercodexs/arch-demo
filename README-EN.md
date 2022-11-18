@@ -210,6 +210,108 @@ understanding its operation through analysis of the source code.
 
 ![img.png](midias/Sequence-Diragram-Router-Details.png)
 
+This "service status" check needs to be added to all micro services that are part of the environment.
+platform work, in this case ARCH-DEMO or ARCH-PRO or CODEXS-ARCH. This procedure is done including
+in each microservice a controller to receive and respond to REST requests duly authorized through the
+basic authentication "BASIC AUTH".
+
+To configure a new service in the environment, follow the instructions below:
+
+- Create a new "package", example "archdemo", inside an existing "package", example "config", as illustrated below:
+
+![img.png](media/Service-Status.png)
+
+- Create the files AliveController.java and AliveService.java inside the "package" created previously, see the examples
+  below to create these files:
+
+> NOTE: Do not change the logic of the files, just configure the routes and data to be used
+
+AliveController.java
+<pre>
+ 1 package com.huntercodexs.archdemo.demo.config.archdemo;
+ 2
+ 3 import lombok.extern.slf4j.Slf4j;
+ 4 import org.springframework.beans.factory.annotation.Autowired;
+ 5 import org.springframework.web.bind.annotation.*;
+ 6
+ 7 import javax.servlet.http.HttpServletRequest;
+ 8
+ 9 @Slf4j
+10 @RestController
+11 @CrossOrigin(origins = "*")
+12 @RequestMapping("${api.prefix}")
+13 public class AliveController {
+14
+15 @Autowired
+16 AliveService aliveService;
+17
+18 @GetMapping(path = "/address/arch-demo-status")
+19 @ResponseBody
+20 public String alive(HttpServletRequest request) {
+21 return aliveService.alive(request);
+22 }
+23
+24 }
+</pre>
+
+In line 18 of the code above use the following configuration for correct operation:
+/${service-endpoint}/arch-demo-status, as this endpoint will be called by SERVICE-ROUTER during a REST request,
+For example, the request below:
+
+<pre>
+http://localhost:33001/huntercodexs/arch-demo/service-demo/api/address
+</pre>
+
+expects to have in the service called "Address" the following endpoint
+
+<pre>
+http://localhost:33001/huntercodexs/arch-demo/service-demo/api/address/arch-demo/status
+</pre>
+
+AliveService.java
+<pre>
+ 1 package com.huntercodexs.archdemo.demo.config.archdemo;
+ 2
+ 3 import lombok.extern.slf4j.Slf4j;
+ 4 import org.springframework.beans.factory.annotation.Value;
+ 5 import org.springframework.stereotype.Service;
+ 6
+ 7 import javax.servlet.http.HttpServletRequest;
+ 8 import java.util.Base64;
+ 9
+10 @Slf4j
+11 @Service
+12 public class AliveService {
+13
+14 @Value("${eureka.security.login}")
+15 String basicAuthService;
+16
+17 public String alive(HttpServletRequest request) {
+18 String basicAuthRequest = new String(Base64.getDecoder().decode(
+19 request.getHeader("Authorization").replaceFirst("Basic ", "")));
+20 if (basicAuthRequest.equals(basicAuthService)) {
+21 return "alive";
+22 }
+23 return null;
+24 }
+25
+26 }
+</pre>
+
+In the code above, you only need to pay attention to line 14, where the value to perform authentication of type is set
+"BASIC AUTH", for example:
+
+<pre>
+eureka.security.login=arch-demo:1234567890-1111-2222-3411111-000001
+</pre>
+
+> NOTE: This value is the same used to register the application or microservice in SERVICE-DISCOVERY (Eureka), by
+> it doesn't change it in any way
+
+That way, whenever SERVICE-ROUTER receives a request to route, it will first check if the service
+is available through a REST call, sending the value of "eureka.security.login" in the request HEADER to
+perform basic authentication: YXJjaC1kZW1vOjEyMzQ1Njc4OTAtMTExMS0yMjIyLTM0MTExMTEtMDAwMDAx.
+
 # Sequence Diagram
 
 The sequence diagram below shows a complete flow of requests made by the operator with the intention of consuming the
@@ -292,7 +394,7 @@ See that there is an internal network limited by the 10.0.0.0/16 subnet where it
 but they cannot be accessed from outside that network except through Nginx. Also note that it is possible to customize the input url
 in Nginx to the ROUTER, for example:
 
-- Nginx
+- NGINX
 <pre>
 Request Token
 http://localhost:33001/nginx/huntercodexs/arch-demo/service-authorizator/api/rest/oauth/v1/oauth/token
