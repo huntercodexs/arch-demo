@@ -210,7 +210,7 @@ compreensão seu funcionamento mediante, análise do código-fonte.
 
 ![img.png](midias/Sequence-Diragram-Router-Details.png)
 
-Essa verificação ser "service status" precisa ser adicionada em todos os micro serviços que fazem parte do ambiente de 
+Essa verificação "service status" precisa ser adicionada em todos os micro serviços que fazem parte do ambiente de 
 trabalho da plataforma, nesse caso ARCH-DEMO ou ARCH-PRO ou ainda CODEXS-ARCH. Esse procedimento é feito incluindo 
 em cada micro serviço um controller para receber e responder a requisições REST devidamente autorizadas por meio da 
 autenticação básica "BASIC AUTH".
@@ -310,7 +310,7 @@ eureka.security.login=arch-demo:1234567890-1111-2222-3411111-000001
 
 Dessa forma sempre que o SERVICE-ROUTER receber uma requisição para rotear, ele primeiro ira verificar se o serviço 
 esta disponível através de uma chamada REST, enviando na HEADER da requisição o valor de "eureka.security.login" para 
-realizar a autenticação basica: YXJjaC1kZW1vOjEyMzQ1Njc4OTAtMTExMS0yMjIyLTM0MTExMTEtMDAwMDAx.
+realizar a autenticação basica: Basic YXJjaC1kZW1vOjEyMzQ1Njc4OTAtMTExMS0yMjIyLTM0MTExMTEtMDAwMDAx.
 
 # Diagrama de Sequencia
 

@@ -219,7 +219,7 @@ To configure a new service in the environment, follow the instructions below:
 
 - Create a new "package", example "archdemo", inside an existing "package", example "config", as illustrated below:
 
-![img.png](media/Service-Status.png)
+![img.png](midias/Service-Status.png)
 
 - Create the files AliveController.java and AliveService.java inside the "package" created previously, see the examples
   below to create these files:
@@ -310,7 +310,7 @@ eureka.security.login=arch-demo:1234567890-1111-2222-3411111-000001
 
 That way, whenever SERVICE-ROUTER receives a request to route, it will first check if the service
 is available through a REST call, sending the value of "eureka.security.login" in the request HEADER to
-perform basic authentication: YXJjaC1kZW1vOjEyMzQ1Njc4OTAtMTExMS0yMjIyLTM0MTExMTEtMDAwMDAx.
+perform basic authentication: Basic YXJjaC1kZW1vOjEyMzQ1Njc4OTAtMTExMS0yMjIyLTM0MTExMTEtMDAwMDAx.
 
 # Sequence Diagram
 
