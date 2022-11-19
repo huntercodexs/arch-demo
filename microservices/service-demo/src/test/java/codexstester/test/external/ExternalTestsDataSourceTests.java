@@ -88,6 +88,31 @@ public class ExternalTestsDataSourceTests extends SetupExternalDataSourceTests {
     }
 
     /**
+     * @implNote The SERVICE-DEMO should be off
+     * */
+    @Test
+    public void whenServiceIsDown_WithOAuth2_RetrieveServerError_StatusCode500_ByHttpMethodPOST() throws Exception {
+        Oauth2RequestTokenDto oauth2RequestTokenDto = codexsTesterSecurityOAuth2Token();
+        ResponseEntity<Oauth2ResponseTokenDto> response = codexsTesterExternalOAuth2GetToken(oauth2RequestTokenDto);
+        JSONObject dataRequest = DataSourceTests.dataSourceAddressRequest();
+
+        HeadersDto headersDto = new HeadersDto();
+        headersDto.setContentType("application/json;charset=UTF-8");
+        headersDto.setAuthorizationBearer(response.getBody().getAccess_token());
+        headersDto.setAddtionalName("Access-Code");
+        headersDto.setAddtionalValue("XYZ-123");
+        headersDto.setHttpMethod(HTTP_METHOD_POST);
+
+        RequestDto requestDto = new RequestDto();
+        requestDto.setUri(externalProp.getProperty("external.tests.base-uri"));
+        requestDto.setId("");
+        requestDto.setDataRequest(dataRequest.toString());
+        requestDto.setExpectedMessage(null);
+
+        codexsTesterExternal_StatusCode500_RetrieveInternalServerError(headersDto, requestDto);
+    }
+
+    /**
      * @implNote The SERVICE-DEMO should be running
      * */
     @Test
@@ -111,31 +136,6 @@ public class ExternalTestsDataSourceTests extends SetupExternalDataSourceTests {
         requestDto.setExpectedMessage("{\"errorCode\":140,\"message\":\"Rules is not OK\"}");
 
         codexsTesterExternal_StatusCode400_RetrieveBadRequest(headersDto, requestDto);
-    }
-
-    /**
-     * @implNote The SERVICE-DEMO should be off
-     * */
-    @Test
-    public void whenServiceIsDown_WithOAuth2_RetrieveServerError_StatusCode500_ByHttpMethodPOST() throws Exception {
-        Oauth2RequestTokenDto oauth2RequestTokenDto = codexsTesterSecurityOAuth2Token();
-        ResponseEntity<Oauth2ResponseTokenDto> response = codexsTesterExternalOAuth2GetToken(oauth2RequestTokenDto);
-        JSONObject dataRequest = DataSourceTests.dataSourceAddressRequest();
-
-        HeadersDto headersDto = new HeadersDto();
-        headersDto.setContentType("application/json;charset=UTF-8");
-        headersDto.setAuthorizationBearer(response.getBody().getAccess_token());
-        headersDto.setAddtionalName("Access-Code");
-        headersDto.setAddtionalValue("XYZ-123");
-        headersDto.setHttpMethod(HTTP_METHOD_POST);
-
-        RequestDto requestDto = new RequestDto();
-        requestDto.setUri(externalProp.getProperty("external.tests.base-uri"));
-        requestDto.setId("");
-        requestDto.setDataRequest(dataRequest.toString());
-        requestDto.setExpectedMessage(null);
-
-        codexsTesterExternal_StatusCode500_RetrieveInternalServerError(headersDto, requestDto);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.huntercodexs.archdemo.discovery.config.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,12 +10,18 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Value("${eureka.security.username}")
+    String eurekaUsername;
+
+    @Value("${eureka.security.password}")
+    String eurekaPassword;
+
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
             .passwordEncoder(NoOpPasswordEncoder.getInstance())
-            .withUser("arch-demo")
-            .password("1234567890-1111-2222-3411111-000001")
+            .withUser(eurekaUsername)
+            .password(eurekaPassword)
             .authorities("ADMIN");
     }
 

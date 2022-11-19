@@ -109,7 +109,7 @@ public class UnitaryTestsDataSourceTests extends SetupUnitaryDataSourceTests {
     }
 
     @Test
-    public void whenSaveAddressTest_FromSyncService_AssertTrue() {
+    public void whenSaveAddressTest_FromSyncService_AssertExact() {
         if (System.getProperty("os.name").equals("Linux")) {
             whenSaveAddressTest_FromSyncService_AssertTrue_Linux();
         } else {
@@ -140,7 +140,7 @@ public class UnitaryTestsDataSourceTests extends SetupUnitaryDataSourceTests {
     }
 
     @Test
-    public void whenRunAddressSearchTest_FromAddressClient_AssertTrue() throws Exception {
+    public void whenRunAddressSearchTest_FromAddressClient_AssertExact() throws Exception {
         ResponseEntity<AddressResponseDto> response = addressClient.addressSearch("12090002");
         codexsTesterAssertExact("12090002", response.getBody().getCep().replaceAll("[^0-9]", ""));
     }

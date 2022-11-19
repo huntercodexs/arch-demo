@@ -22,7 +22,7 @@ import static com.huntercodexs.archdemo.router.config.setup.ServiceStatusMessage
 
 @Slf4j
 @Configuration
-public class RouterFilter extends ZuulFilter {
+public class AccessControlRouterFilter extends ZuulFilter {
 
     @Value("${authorizator.uri.token}")
     private String uriToken;
