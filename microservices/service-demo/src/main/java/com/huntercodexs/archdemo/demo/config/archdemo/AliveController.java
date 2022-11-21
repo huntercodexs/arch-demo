@@ -1,5 +1,6 @@
 package com.huntercodexs.archdemo.demo.config.archdemo;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("${api.prefix}")
+@Hidden
 public class AliveController {
 
     @Autowired

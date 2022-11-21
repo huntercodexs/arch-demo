@@ -22,7 +22,7 @@ Exemplo para construir um sistema simples ou complexo baseado em arquitetura de 
 - Processo de Autorização
 - Ambiente Seguro
 - Como usar
-- TODO
+- OpenAPI (Swagger)
 
 
 # Requisitos de Sistema
@@ -495,105 +495,340 @@ esse integrante.
 
 Serviço de exemplo para consultar endereços via Correios com um CEP qualquer, também pode ser chamado DEMO, Address ou Postal Code.
 
-# TODO
 
-<table>
-<tr>
-<th>#</th>
-<th>Descrição</th><th>Situação</th>
-</tr>
-<tr>
-<td>1</td>
-<td>
-Criar ambiente completo e-commerce com segurança anti-fraude e bancos de dados diversos, usar PHP para criar o site, 
-Python para processar arquivos, Java (Spring Boot) para APIs, Javascript (Jshunter) para fazer o front-end. Incluir
-também modulos em NodeJS e ReactJS, banco de dados diversos.
-</td>
-<td>TODO</td>
-</tr>
-<tr>
-<td>2</td>
-<td>
-Inserir segurança no processo de registro do SERVICE-DISCOVERY (Eureka).
-</td>
-<td style="color: #00FF00;">DONE</td>
-</tr>
-<tr>
-<td>3</td>
-<td>
-Inserir um ExceptionHanlder para tratamentos de erros nos micro-serviços do ambiente.
-</td>
-<td style="color: #00FF00;">DONE</td>
-</tr>
-<tr>
-<td>4</td>
-<td>
-Verificar se é possivel obter os dados de login no SERVICE-DISCOVERY do banco de dados.
-</td>
-<td style="color: #FF0000">CANCELADO</td>
-</tr>
-<tr>
-<td>5</td>
-<td>
-Habilitar Zipkin e Prometheus.
-</td>
-<td>TODO</td>
-</tr>
-<tr>
-<td>6</td>
-<td>
-Habilitar Nginx usando Docker.
-</td>
-<td>TODO</td>
-</tr>
-<tr>
-<td>7</td>
-<td>
-Habilitar Swagger nos micro serviços.
-</td>
-<td style="color: #FFFF00;">WORK</td>
-</tr>
-<tr>
-<td>8</td>
-<td>
-Habilitar Testes unitarios e de integração.
-</td>
-<td style="color: #00FF00">DONE</td>
-</tr>
-<tr>
-<td>9</td>
-<td>
-Criar serviço de mensageria usando RabbitMQ.
-</td>
-<td>TODO</td>
-</tr>
-<tr>
-<td>10</td>
-<td>
-Habilitar API DOC GUARD (Projeto pessoal), verificar se é possível gerar um JAR para usar como dependencia.
-</td>
-<td>TODO</td>
-</tr>
-<tr>
-<td>11</td>
-<td>
-Habilitar plugin PROGUARD para ofuscamento de códigos.
-</td>
-<td>TODO</td>
-</tr>
-<tr>
-<td>12</td>
-<td>
-Inserir controle no SERVICE-ROUTER para ignorar requisições de check-service-status.
-</td>
-<td>TODO</td>
-</tr>
-<tr>
-<td>13</td>
-<td>
-Inserir controle de acesso nos micro serviços para não permitir que um token gerado para um serviço seja usado em outro serviço
-</td>
-<td>TODO</td>
-</tr>
-</table>
+# OpenAPI (Swagger)
 
+A documentação de uma API é um ponto muito importante em um projeto, oferecendo qualidade, manutenção, entendimento e 
+suporte aos desenvolvedores tanto da propria API quanto daqueles desenvolvedores que vão consumir a API. Por isso o uso 
+desse conceito será aplicado aqui nesse projeto fazendo o uso do Swagger que é um framework para documentar APIs, 
+também conhecido como OpenAPI.
+
+Para documentar uma API que esta dentro de um micro serviço no ambiente ARCH-DEMO siga as instruções abaixo:
+
+- Adicione a dependência no serviço que precisa ser documentado (exemplo: SERVICE-DEMO):
+
+<pre>
+      &lt;dependency&gt;
+          &lt;groupId>org.springdoc&lt;/groupId&gt;
+          &lt;artifactId>springdoc-openapi-ui&lt;/artifactId&gt;
+          &lt;version>1.6.4&lt;/version&gt;
+      &lt;/dependency&gt;
+</pre>
+
+- Faça a documentação da API, para exemplificar veja os exemplos abaixo:
+  
+> Controller ou RestController
+
+<pre>
+package com.huntercodexs.archdemo.demo.controller;
+
+import com.huntercodexs.archdemo.demo.config.codexsresponser.dto.CodexsResponserDto;
+import com.huntercodexs.archdemo.demo.dto.AddressRequestDto;
+import com.huntercodexs.archdemo.demo.dto.AddressResponseDto;
+import com.huntercodexs.archdemo.demo.service.AddressService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
+@Slf4j
+@RestController
+@CrossOrigin(origins = "*")
+@RequestMapping("${api.prefix}")
+@Tag(name = "Address Service")
+public class AddressController {
+
+    @Autowired
+    AddressService addressService;
+
+    @Operation(
+            summary = "Find Address",
+            description = "Microservice to get an address from anyone postal code"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Address found successfull", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = AddressResponseDto.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
+            }),
+            @ApiResponse(responseCode = "401", description = "Access denied", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
+            }),
+            @ApiResponse(responseCode = "404", description = "Address not found", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
+            }),
+            @ApiResponse(responseCode = "406", description = "Not accceptable", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
+            }),
+            @ApiResponse(responseCode = "500", description = "Internal error", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
+            })
+    })
+    @PostMapping(path = "/address", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity&lt;AddressResponseDto&gt; getAddress(
+            @Valid @RequestBody(required = true) AddressRequestDto addressRequestDto
+    ) {
+        return addressService.getAddress(addressRequestDto);
+    }
+
+}
+</pre>
+
+> Error Response DTO
+
+<pre>
+package com.huntercodexs.archdemo.demo.config.codexsresponser.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Schema(description = "This object refers to Codexs Responser Handler", name = "Codexs Responser")
+public class CodexsResponserDto {
+
+    @Schema(
+            description = "Runtime code error or excetion defined in the application.",
+            example = "9000",
+            required = true)
+    public int errorCode;
+
+    @Schema(
+            description = "Message refer to errorCode defined in the application.",
+            example = "Address not found",
+            required = true)
+    public String message;
+}
+</pre>
+
+> Request DTO
+
+<pre>
+package com.huntercodexs.archdemo.demo.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Schema(description = "This object refers to Address Request", name = "Address Request")
+public class AddressRequestDto {
+
+    @Schema(
+            description = "Rules code to access rules server according with the rules defined.",
+            example = "XYZ-123",
+            required = true)
+    @NotNull @NotEmpty @NotBlank
+    String rulesCode;
+
+    @Schema(
+            description = "Postal code number (only numbers).",
+            example = "12090002",
+            required = true)
+    @NotNull @NotEmpty @NotBlank
+    String postalCode;
+
+    @Schema(
+            description = "Webhook callback.",
+            example = "http://api.sample.com/receptor",
+            required = false)
+    String webhook;
+}
+</pre>
+
+> Response DTO
+
+<pre>
+package com.huntercodexs.archdemo.demo.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Schema(description = "This object refers to Address Response", name = "Address Response")
+public class AddressResponseDto {
+
+    @Schema(
+            description = "Postal number refer to query.",
+            example = "12090002",
+            required = true)
+    public String cep;
+
+    @Schema(
+            description = "Name of the place found",
+            example = "R Alameda Santos",
+            required = true)
+    public String logradouro;
+
+    @Schema(
+            description = "Addtional information about address found.",
+            example = "Ao lado do shopping BigHouse",
+            required = true)
+    public String complemento;
+
+    @Schema(
+            description = "District name.",
+            example = "Campo Belo",
+            required = true)
+    public String bairro;
+
+    @Schema(
+            description = "City or downtown.",
+            example = "Sao Paulo",
+            required = true)
+    public String localidade;
+
+    @Schema(
+            description = "State Acronym.",
+            example = "PR",
+            required = true)
+    public String uf;
+
+    @Schema(
+            description = "Others information about address (ibge).",
+            example = "12345",
+            required = false)
+    public String ibge;
+
+    @Schema(
+            description = "Username of the user to be create (email or cpf).",
+            example = "12345",
+            required = false)
+    public String gia;
+
+    @Schema(
+            description = "Phone Digit Code to address found (ddd).",
+            example = "88888888888",
+            required = false)
+    public String ddd;
+
+    @Schema(
+            description = "Others information about address (siafi).",
+            example = "12345",
+            required = false)
+    public String siafi;
+}
+</pre>
+
+> NOTA: Caso queira ocultar algum controller na documentação use @Hidden conforme exemplo abaixo:
+
+<pre>
+package com.huntercodexs.archdemo.demo.config.archdemo;
+
+import io.swagger.v3.oas.annotations.Hidden;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+
+@Slf4j
+@RestController
+@CrossOrigin(origins = "*")
+@RequestMapping("${api.prefix}")
+@Hidden
+public class AliveController {
+
+    @Autowired
+    AliveService aliveService;
+
+    @GetMapping(path = "/address/arch-demo-status")
+    @ResponseBody
+    public String alive(HttpServletRequest request) {
+        return aliveService.alive(request);
+    }
+
+}
+</pre>
+
+> Configure o arquivo application.properties do SERVICE-DEMO conforme sugestão a seguir:
+
+<pre>
+# SWAGGER
+#-------------------------------------------------------------------------------------------------------------------
+# See more: https://springdoc.org/properties.html
+#true, false
+springdoc.swagger-ui.enabled=true
+#Application path
+springdoc.swagger-ui.path=/huntercodexs/arch-demo/service-demo/swagger-ui
+#Ordered
+springdoc.swagger-ui.operationsSorter=method
+#StandaloneLayout, BaseLayout
+springdoc.swagger-ui.layout=StandaloneLayout
+#/api-docs, api-docs-guard, /api-docs-custom
+springdoc.api-docs.path=/api-docs/service-demo
+#true, false
+springdoc.model-and-view-allowed=true
+</pre>
+
+***Um ponto importante é ficar atento a configuração do springdoc.api-docs.path=/api-docs/service-demo, pois ele deverá 
+estar alinhado com a configuração de rotas no SERVICE-ROUTER conforme mostrado mais abaixo***
+
+Após realizar todos os ajustes mencionados acima, e também a documentação da API, verifique se é possível acessar o 
+swagger pela uri definida em springdoc.swagger-ui.path, conforme exemplo abaixo:
+
+<pre>
+http://localhost:41233/huntercodexs/arch-demo/service-demo/swagger-ui/index.html
+</pre>
+
+Para isso é preciso informar corretamente qual a porta que o micro serviço está sendo executado, nesse caso 41233. Ao 
+acessar a página será possível visualizar uma tela conforme mostrada a seguir:
+
+![img.png](midias/OpenAPI-Swagger.png)
+
+- Ajuste o SERVICE-ROUTER para atender os requisitos de segurança do ambiente
+
+Até agora só era possível acessar o Swagger através do link direto e tendo o conhecimento de onde o serviço esta sendo 
+executado, porém, será necessário ajustar o SERVICE-ROUTER para entender essas requisições OpenAPI e direcionar para a 
+rota correta.
+
+> Adicione a seguinte configuração no arquivo application.properties do SERVICE-ROUTER
+
+<pre>
+zuul.routes.service-demo-swagger.path=/api-docs/service-demo/**
+zuul.routes.service-demo-swagger.service-id=SERVICE-DEMO
+zuul.routes.service-demo-swagger.strip-prefix=false
+zuul.routes.service-demo-swagger.sensitive-headers=
+</pre>
+
+Repare que existe uma nova entrada referente ao SERVICE-DEMO, porém agora ela se refere ao recurso OpenAPI contida o 
+micro serviço SERVICE-DEMO configurado na linha zuul.routes.service-demo-swagger.path=/api-docs/service-demo/**
+
+***Veja que a linha zuul.routes.service-demo-swagger.path=/api-docs/service-demo refere-se ao path configurado no micro 
+serviço SERVICE-DEMO mostrado anteriormente***
+
+Após fazer as alterações no SERVICE-ROUTER, acesse o Swagger do micro serviço SERVICE-DEMO pela url 
+
+<pre>
+http://localhost:33001/huntercodexs/arch-demo/service-demo/swagger-ui/index.html
+</pre>
+
+> NOTA. No ambiente seguro as rotas internas não ficam disponíveis ao público, assim como as portas onde os micro 
+> serviços estão sendo executados.

@@ -61,15 +61,23 @@ public class AccessControlRouterFilter extends ZuulFilter {
     public Object run() {
 
         RequestContext ctx = RequestContext.getCurrentContext();
+        String route = ctx.getRequest().getRequestURL().toString();
 
-        /*Check Service Status*/
-        if (ctx.getRequest().getRequestURL().toString().contains("/arch-demo-status")) {
+        /*Swagger OpenAPI from services*/
+        if (route.contains("/swagger-ui") || route.contains("/api-docs")) {
             /*forwarding to microservices*/
             ctx.setSendZuulResponse(true);
             return null;
         }
 
-        int statusService = checkServiceStatus(ctx.getRequest().getRequestURL().toString());
+        /*Check Service Status*/
+        if (route.contains("/arch-demo-status")) {
+            /*forwarding to microservices*/
+            ctx.setSendZuulResponse(true);
+            return null;
+        }
+
+        int statusService = checkServiceStatus(route);
 
         if (statusService != SERVICE_STATUS_OK.getCode()) {
             return invalidServiceStatus(ctx, statusService);
