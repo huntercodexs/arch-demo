@@ -502,6 +502,10 @@ support for developers of both the API itself and those developers who will cons
 of this concept will be applied here in this project making use of Swagger which is a framework for documenting APIs,
 also known as OpenAPI.
 
+The operation flow in the environment for using OpenAPI (Swagger) can be seen in the sequence diagram below:
+
+![img.png](midias/OpenAPI-Details.png)
+
 To document an API that is inside a microservice in the ARCH-DEMO environment, follow the instructions below:
 
 - Add the dependency on the service that needs to be documented (example: SERVICE-DEMO):
@@ -519,252 +523,252 @@ To document an API that is inside a microservice in the ARCH-DEMO environment, f
 > Controller or RestController
 
 <pre>
-package com.huntercodexs.archdemo.demo.controller;
-
-import com.huntercodexs.archdemo.demo.config.codexsresponser.dto.CodexsResponserDto;
-import com.huntercodexs.archdemo.demo.dto.AddressRequestDto;
-import com.huntercodexs.archdemo.demo.dto.AddressResponseDto;
-import com.huntercodexs.archdemo.demo.service.AddressService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-
-@Slf4j
-@RestController
-@CrossOrigin(origins = "*")
-@RequestMapping("${api.prefix}")
-@Tag(name = "Address Service")
-public class AddressController {
-
-    @Autowired
-    AddressService addressService;
-
-    @Operation(
-            summary = "Find Address",
-            description = "Microservice to get an address from anyone postal code"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Address found successfull", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = AddressResponseDto.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Invalid request", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
-            }),
-            @ApiResponse(responseCode = "401", description = "Access denied", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
-            }),
-            @ApiResponse(responseCode = "404", description = "Address not found", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
-            }),
-            @ApiResponse(responseCode = "406", description = "Not accceptable", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
-            }),
-            @ApiResponse(responseCode = "500", description = "Internal error", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
-            })
-    })
-    @PostMapping(path = "/address", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity&lt;AddressResponseDto&gt; getAddress(
-            @Valid @RequestBody(required = true) AddressRequestDto addressRequestDto
-    ) {
-        return addressService.getAddress(addressRequestDto);
-    }
-
-}
+ 1	package com.huntercodexs.archdemo.demo.controller;
+ 2	
+ 3	import com.huntercodexs.archdemo.demo.config.codexsresponser.dto.CodexsResponserDto;
+ 4	import com.huntercodexs.archdemo.demo.dto.AddressRequestDto;
+ 5	import com.huntercodexs.archdemo.demo.dto.AddressResponseDto;
+ 6	import com.huntercodexs.archdemo.demo.service.AddressService;
+ 7	import io.swagger.v3.oas.annotations.Operation;
+ 8	import io.swagger.v3.oas.annotations.media.Content;
+ 9	import io.swagger.v3.oas.annotations.media.Schema;
+10	import io.swagger.v3.oas.annotations.responses.ApiResponse;
+11	import io.swagger.v3.oas.annotations.responses.ApiResponses;
+12	import io.swagger.v3.oas.annotations.tags.Tag;
+13	import lombok.extern.slf4j.Slf4j;
+14	import org.springframework.beans.factory.annotation.Autowired;
+15	import org.springframework.http.MediaType;
+16	import org.springframework.http.ResponseEntity;
+17	import org.springframework.web.bind.annotation.*;
+18	
+19	import javax.validation.Valid;
+20	
+21	@Slf4j
+22	@RestController
+23	@CrossOrigin(origins = "*")
+24	@RequestMapping("${api.prefix}")
+25	@Tag(name = "Address Service")
+26	public class AddressController {
+27	
+28	    @Autowired
+29	    AddressService addressService;
+30	
+31	    @Operation(
+32	            summary = "Find Address",
+33	            description = "Microservice to get an address from anyone postal code"
+34	    )
+35	    @ApiResponses(value = {
+36	            @ApiResponse(responseCode = "200", description = "Address found successfull", content = {
+37	                    @Content(mediaType = "application/json", schema = @Schema(implementation = AddressResponseDto.class))
+38	            }),
+39	            @ApiResponse(responseCode = "400", description = "Invalid request", content = {
+40	                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
+41	            }),
+42	            @ApiResponse(responseCode = "401", description = "Access denied", content = {
+43	                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
+44	            }),
+45	            @ApiResponse(responseCode = "404", description = "Address not found", content = {
+46	                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
+47	            }),
+48	            @ApiResponse(responseCode = "406", description = "Not accceptable", content = {
+49	                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
+50	            }),
+51	            @ApiResponse(responseCode = "500", description = "Internal error", content = {
+52	                    @Content(mediaType = "application/json", schema = @Schema(implementation = CodexsResponserDto.class))
+53	            })
+54	    })
+55	    @PostMapping(path = "/address", produces = MediaType.APPLICATION_JSON_VALUE)
+56	    @ResponseBody
+57	    public ResponseEntity&lt;AddressResponseDto&gt; getAddress(
+58	            @Valid @RequestBody(required = true) AddressRequestDto addressRequestDto
+59	    ) {
+60	        return addressService.getAddress(addressRequestDto);
+61	    }
+62	
+63	}
 </pre>
 
 > Error Response DTO
 
 <pre>
-package com.huntercodexs.archdemo.demo.config.codexsresponser.dto;
-
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Setter
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Schema(description = "This object refers to Codexs Responser Handler", name = "Codexs Responser")
-public class CodexsResponserDto {
-
-    @Schema(
-            description = "Runtime code error or excetion defined in the application.",
-            example = "9000",
-            required = true)
-    public int errorCode;
-
-    @Schema(
-            description = "Message refer to errorCode defined in the application.",
-            example = "Address not found",
-            required = true)
-    public String message;
-}
+ 1	package com.huntercodexs.archdemo.demo.config.codexsresponser.dto;
+ 2	
+ 3	import io.swagger.v3.oas.annotations.media.Schema;
+ 4	import lombok.AllArgsConstructor;
+ 5	import lombok.Getter;
+ 6	import lombok.NoArgsConstructor;
+ 7	import lombok.Setter;
+ 8	
+ 9	@Setter
+10	@Getter
+11	@NoArgsConstructor
+12	@AllArgsConstructor
+13	@Schema(description = "This object refers to Codexs Responser Handler", name = "Codexs Responser")
+14	public class CodexsResponserDto {
+15	
+16	    @Schema(
+17	            description = "Runtime code error or excetion defined in the application.",
+18	            example = "9000",
+19	            required = true)
+20	    public int errorCode;
+21	
+22	    @Schema(
+23	            description = "Message refer to errorCode defined in the application.",
+24	            example = "Address not found",
+25	            required = true)
+26	    public String message;
+27	}
 </pre>
 
 > Request DTO
 
 <pre>
-package com.huntercodexs.archdemo.demo.dto;
-
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Schema(description = "This object refers to Address Request", name = "Address Request")
-public class AddressRequestDto {
-
-    @Schema(
-            description = "Rules code to access rules server according with the rules defined.",
-            example = "XYZ-123",
-            required = true)
-    @NotNull @NotEmpty @NotBlank
-    String rulesCode;
-
-    @Schema(
-            description = "Postal code number (only numbers).",
-            example = "12090002",
-            required = true)
-    @NotNull @NotEmpty @NotBlank
-    String postalCode;
-
-    @Schema(
-            description = "Webhook callback.",
-            example = "http://api.sample.com/receptor",
-            required = false)
-    String webhook;
-}
+ 1	package com.huntercodexs.archdemo.demo.dto;
+ 2	
+ 3	import io.swagger.v3.oas.annotations.media.Schema;
+ 4	import lombok.*;
+ 5	
+ 6	import javax.validation.constraints.NotBlank;
+ 7	import javax.validation.constraints.NotEmpty;
+ 8	import javax.validation.constraints.NotNull;
+ 9	
+10	@Getter
+11	@Setter
+12	@ToString
+13	@NoArgsConstructor
+14	@AllArgsConstructor(access = AccessLevel.PRIVATE)
+15	@Schema(description = "This object refers to Address Request", name = "Address Request")
+16	public class AddressRequestDto {
+17	
+18	    @Schema(
+19	            description = "Rules code to access rules server according with the rules defined.",
+20	            example = "XYZ-123",
+21	            required = true)
+22	    @NotNull @NotEmpty @NotBlank
+23	    String rulesCode;
+24	
+25	    @Schema(
+26	            description = "Postal code number (only numbers).",
+27	            example = "12090002",
+28	            required = true)
+29	    @NotNull @NotEmpty @NotBlank
+30	    String postalCode;
+31	
+32	    @Schema(
+33	            description = "Webhook callback.",
+34	            example = "http://api.sample.com/receptor",
+35	            required = false)
+36	    String webhook;
+37	}
 </pre>
 
 > Response DTO
 
 <pre>
-package com.huntercodexs.archdemo.demo.dto;
-
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Schema(description = "This object refers to Address Response", name = "Address Response")
-public class AddressResponseDto {
-
-    @Schema(
-            description = "Postal number refer to query.",
-            example = "12090002",
-            required = true)
-    public String cep;
-
-    @Schema(
-            description = "Name of the place found",
-            example = "R Alameda Santos",
-            required = true)
-    public String logradouro;
-
-    @Schema(
-            description = "Addtional information about address found.",
-            example = "Ao lado do shopping BigHouse",
-            required = true)
-    public String complemento;
-
-    @Schema(
-            description = "District name.",
-            example = "Campo Belo",
-            required = true)
-    public String bairro;
-
-    @Schema(
-            description = "City or downtown.",
-            example = "Sao Paulo",
-            required = true)
-    public String localidade;
-
-    @Schema(
-            description = "State Acronym.",
-            example = "PR",
-            required = true)
-    public String uf;
-
-    @Schema(
-            description = "Others information about address (ibge).",
-            example = "12345",
-            required = false)
-    public String ibge;
-
-    @Schema(
-            description = "Username of the user to be create (email or cpf).",
-            example = "12345",
-            required = false)
-    public String gia;
-
-    @Schema(
-            description = "Phone Digit Code to address found (ddd).",
-            example = "88888888888",
-            required = false)
-    public String ddd;
-
-    @Schema(
-            description = "Others information about address (siafi).",
-            example = "12345",
-            required = false)
-    public String siafi;
-}
+ 1	package com.huntercodexs.archdemo.demo.dto;
+ 2	
+ 3	import io.swagger.v3.oas.annotations.media.Schema;
+ 4	import lombok.*;
+ 5	
+ 6	@Getter
+ 7	@Setter
+ 8	@ToString
+ 9	@NoArgsConstructor
+10	@AllArgsConstructor(access = AccessLevel.PRIVATE)
+11	@Schema(description = "This object refers to Address Response", name = "Address Response")
+12	public class AddressResponseDto {
+13	
+14	    @Schema(
+15	            description = "Postal number refer to query.",
+16	            example = "12090002",
+17	            required = true)
+18	    public String cep;
+19	
+20	    @Schema(
+21	            description = "Name of the place found",
+22	            example = "R Alameda Santos",
+23	            required = true)
+24	    public String logradouro;
+25	
+26	    @Schema(
+27	            description = "Addtional information about address found.",
+28	            example = "Ao lado do shopping BigHouse",
+29	            required = true)
+30	    public String complemento;
+31	
+32	    @Schema(
+33	            description = "District name.",
+34	            example = "Campo Belo",
+35	            required = true)
+36	    public String bairro;
+37	
+38	    @Schema(
+39	            description = "City or downtown.",
+40	            example = "Sao Paulo",
+41	            required = true)
+42	    public String localidade;
+43	
+44	    @Schema(
+45	            description = "State Acronym.",
+46	            example = "PR",
+47	            required = true)
+48	    public String uf;
+49	
+50	    @Schema(
+51	            description = "Others information about address (ibge).",
+52	            example = "12345",
+53	            required = false)
+54	    public String ibge;
+55	
+56	    @Schema(
+57	            description = "Username of the user to be create (email or cpf).",
+58	            example = "12345",
+59	            required = false)
+60	    public String gia;
+61	
+62	    @Schema(
+63	            description = "Phone Digit Code to address found (ddd).",
+64	            example = "88888888888",
+65	            required = false)
+66	    public String ddd;
+67	
+68	    @Schema(
+69	            description = "Others information about address (siafi).",
+70	            example = "12345",
+71	            required = false)
+72	    public String siafi;
+73	}
 </pre>
 
 > NOTE: If you want to hide a controller in the documentation, use @Hidden as shown below:
 
 <pre>
-package com.huntercodexs.archdemo.demo.config.archdemo;
-
-import io.swagger.v3.oas.annotations.Hidden;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-
-@Slf4j
-@RestController
-@CrossOrigin(origins = "*")
-@RequestMapping("${api.prefix}")
-@Hidden
-public class AliveController {
-
-    @Autowired
-    AliveService aliveService;
-
-    @GetMapping(path = "/address/arch-demo-status")
-    @ResponseBody
-    public String alive(HttpServletRequest request) {
-        return aliveService.alive(request);
-    }
-
-}
+ 1	package com.huntercodexs.archdemo.demo.config.archdemo;
+ 2	
+ 3	import io.swagger.v3.oas.annotations.Hidden;
+ 4	import lombok.extern.slf4j.Slf4j;
+ 5	import org.springframework.beans.factory.annotation.Autowired;
+ 6	import org.springframework.web.bind.annotation.*;
+ 7	
+ 8	import javax.servlet.http.HttpServletRequest;
+ 9	
+10	@Slf4j
+11	@RestController
+12	@CrossOrigin(origins = "*")
+13	@RequestMapping("${api.prefix}")
+14	@Hidden
+15	public class AliveController {
+16	
+17	    @Autowired
+18	    AliveService aliveService;
+19	
+20	    @GetMapping(path = "/address/arch-demo-status")
+21	    @ResponseBody
+22	    public String alive(HttpServletRequest request) {
+23	        return aliveService.alive(request);
+24	    }
+25	
+26	}
 </pre>
 
 > Configure the SERVICE-DEMO application.properties file as suggested below:
