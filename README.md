@@ -747,29 +747,31 @@ Para documentar uma API que esta dentro de um micro serviço no ambiente ARCH-DE
  1	package com.huntercodexs.archdemo.demo.config.archdemo;
  2	
  3	import io.swagger.v3.oas.annotations.Hidden;
- 4	import lombok.extern.slf4j.Slf4j;
- 5	import org.springframework.beans.factory.annotation.Autowired;
- 6	import org.springframework.web.bind.annotation.*;
- 7	
- 8	import javax.servlet.http.HttpServletRequest;
- 9	
-10	@Slf4j
-11	@RestController
-12	@CrossOrigin(origins = "*")
-13	@RequestMapping("${api.prefix}")
-14	@Hidden
-15	public class AliveController {
-16	
-17	    @Autowired
-18	    AliveService aliveService;
-19	
-20	    @GetMapping(path = "/address/arch-demo-status")
-21	    @ResponseBody
-22	    public String alive(HttpServletRequest request) {
-23	        return aliveService.alive(request);
-24	    }
-25	
-26	}
+ 4	import io.swagger.v3.oas.annotations.Operation;
+ 5	import lombok.extern.slf4j.Slf4j;
+ 6	import org.springframework.beans.factory.annotation.Autowired;
+ 7	import org.springframework.web.bind.annotation.*;
+ 8	
+ 9	import javax.servlet.http.HttpServletRequest;
+10	
+11	@Slf4j
+12	@RestController
+13	@CrossOrigin(origins = "*")
+14	@RequestMapping("${api.prefix}")
+15	@Hidden
+16	public class AliveController {
+17	
+18	    @Autowired
+19	    AliveService aliveService;
+20	
+21	    @Operation(hidden = true)
+22	    @GetMapping(path = "/address/arch-demo-status")
+23	    @ResponseBody
+24	    public String alive(HttpServletRequest request) {
+25	        return aliveService.alive(request);
+26	    }
+27	
+28	}
 </pre>
 
 > Configure o arquivo application.properties do SERVICE-DEMO conforme sugestão a seguir:
